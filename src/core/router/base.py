@@ -7,6 +7,7 @@ from fastapi.responses import Response
 from jinja2_fragments.fastapi import Jinja2Blocks
 from core.router.router import ContextRoute
 from core.context import request_context
+from core.settings import BASE_DIR
 
 
 class CustomRouter:
@@ -35,7 +36,9 @@ class CustomRouter:
 
         # self.logger.debug(f"path: {template_path} from {self.__class__.__name__}")
 
-        return Jinja2Blocks(directory=templates_dir)
+        shared_templates = str(BASE_DIR / "core/templates")
+
+        return Jinja2Blocks([templates_dir, shared_templates])
 
     @classmethod
     def __init_subclass__(cls):
