@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres
+    restart: unless-stopped
+    env_file: .env
+
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -p 5432"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+    #develop:
+    #  watch:
+    #    - path: .env
+    #      action: restart
+
+    volumes:
+      - ./data/db:/var/lib/postgresql
