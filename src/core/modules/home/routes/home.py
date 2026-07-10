@@ -22,10 +22,11 @@ class HomeRouter(CustomRouter):
         return self.render_template(request, "home.html")
 
     @get("/nada/{name}")
+    # @permission(group="group_name")
     async def get_nada(self, request: Request, name: str):
         # self.logger.debug(request)
         # self.logger.debug(name)
-        request_context.set({"name": name})
+
         self.logger.debug(request_context.get("name"))
 
         return self.render_template(request, "home.html")
