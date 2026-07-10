@@ -13,7 +13,7 @@ class ContextRoute(APIRoute):
             # request tracking
             request_id = str(uuid4())
 
-            # get context here
+            # get context from session middleware
             context = {"name": "admin"}  # example
 
             # request.state.ctx = context

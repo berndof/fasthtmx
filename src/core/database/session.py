@@ -46,5 +46,5 @@ class DBSessionManager:
 
 from core.settings import POSTGRES_DB_URL, SQLITE_DB_URL
 
-pg_manager = DBSessionManager(POSTGRES_DB_URL)
-sqlite_manager = DBSessionManager(SQLITE_DB_URL)
+db = DBSessionManager(POSTGRES_DB_URL)
+# sqlite_manager = DBSessionManager(SQLITE_DB_URL)

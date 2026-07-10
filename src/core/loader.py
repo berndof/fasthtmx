@@ -3,7 +3,7 @@ from logging import getLogger
 from core.settings import BASE_DIR
 import importlib
 from core.meta import Singleton
-from core.models import BasePGModel, BaseSqliteModel
+from core.models import BaseModel
 from sqlalchemy.orm import DeclarativeBase
 from typing import TypeVar, Any
 from core.router.base import CustomRouter
@@ -17,20 +17,21 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from core.middlewares import ProcessResponseTimeMiddleware
 from core.middlewares import UowMiddleware
+from core.middlewares import SessionMiddleware
 
 T = TypeVar("T", bound="DeclarativeBase")
 
 CORE_MODULES_PATH = BASE_DIR / "core/modules"
 
-logger = getLogger(f"loader")
+logger = getLogger("loader")
 logger.setLevel("DEBUG")
 
 
 class Registry(metaclass=Singleton):
     def __init__(self):
         self.routers: list[Any] = []
-        self.pg_models: list[type[BasePGModel]] = []
-        self.sqlite_models: list[type[BaseSqliteModel]] = []
+        self.models: list[type[BaseModel]] = []
+        # self.sqlite_models: list[type[BaseSqliteModel]] = []
         self.middlewares: list = []
 
     def register_router(self, router: APIRouter):
@@ -40,12 +41,12 @@ class Registry(metaclass=Singleton):
 
     def register_model(self, model_cls: type[T]) -> type[T]:
         # ver o subtipo do modelo, sqlite ou pg, e baseado nisso adicionar na lista correta
-        if issubclass(model_cls, BasePGModel):
-            self.pg_models.append(model_cls)
+        if issubclass(model_cls, BaseModel):
+            self.models.append(model_cls)
             logger.debug(f"Model {model_cls.__name__} registrado em PostgreSQL.")
 
-        elif issubclass(model_cls, BaseSqliteModel):
-            self.sqlite_models.append(model_cls)
+        elif issubclass(model_cls, BaseModel):
+            self.models.append(model_cls)
             logger.debug(f"Model {model_cls.__name__} registrado em SQLite.")
 
         else:
@@ -172,6 +173,7 @@ class Registry(metaclass=Singleton):
 
         app.add_middleware(ProcessResponseTimeMiddleware)
         app.add_middleware(UowMiddleware)
+        app.add_middleware(SessionMiddleware)
 
         return
 

@@ -4,7 +4,7 @@
 from sqlalchemy.orm import DeclarativeBase
 
 
-class BasePGModel(DeclarativeBase):
+class BaseModel(DeclarativeBase):
     __abstract__ = True
     __mapper_args__ = {"eager_defaults": True}
 

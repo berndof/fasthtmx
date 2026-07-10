@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Request
+from fastapi.responses import RedirectResponse
 
 # from core import registry
 # from core.modules.auth.services.user import UserService
@@ -12,6 +13,11 @@ from core.context import request_context
 class HomeRouter(CustomRouter):
     prefix: str = ""
     template_path = "../templates"
+
+    # REDIRECT / -> /home
+    # @get("/")
+    # async def root_redirect(self, request: Request):  # verificar cookie de user):
+    #    return RedirectResponse(url="/home", #status_code=302)
 
     @get("/home")
     async def get_home(self, request: Request):

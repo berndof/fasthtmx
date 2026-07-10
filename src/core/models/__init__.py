@@ -1,1 +1,1 @@
-from .base import BasePGModel, BaseSqliteModel  # noqa: F401
+from .base import BaseModel  # noqa: F401
