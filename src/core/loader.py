@@ -172,8 +172,8 @@ class Registry(metaclass=Singleton):
         )
 
         app.add_middleware(ProcessResponseTimeMiddleware)
-        app.add_middleware(UowMiddleware)
         app.add_middleware(SessionMiddleware)
+        app.add_middleware(UowMiddleware)
 
         return
 

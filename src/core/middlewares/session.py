@@ -13,15 +13,17 @@ class SessionMiddleware(BaseHTTPMiddleware):
         session = request.cookies.get("appSession")
         enable_guest_session = True
 
+        logger.debug("Acessando uow de sessao agora")
+        uow = request.scope["uow"]
+
+        # try validate session
+
         if not session:
             # se guest enable
             # criar uma guest session
             ...
             if not enable_guest_session:
                 return RedirectResponse("/login")
-
-        logger.debug("Acessando uow de sessao agora")
-        uow = request.state.uow
 
         # tenta ver se tenho uma sessao conectada
         # se nao existir uma sessao, e guest session for permitio, criar sessao nova.

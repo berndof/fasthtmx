@@ -1,7 +1,7 @@
 from core.schemas import BaseSchema
-from pydantic import EmailStr, Field
+from pydantic import Field
 
 
 class UserAuthForm(BaseSchema):
-    email: EmailStr = Field(...)
-    password: str = Field(..., max_length=20)
+    email: str = Field(..., min_length=3, max_length=255)
+    password: str = Field(..., min_length=1, max_length=20)

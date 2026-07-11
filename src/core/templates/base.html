@@ -1,14 +1,48 @@
+
 <!DOCTYPE html>
-<html lang="en">
+{# <html lang="pt-BR" x-data :class="{'dark': $store.theme.darkMode }">
+ #}
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base</title>
+
+    {% block title %}
+    <title>{{page.title if page and page.title else "Torres SCC"}}</title>
+    {% endblock title %}
+
+
+    {# <script type="module" src="/static/js/main.js" defer></script> #}
+    {# <script type="module" src="/static/js/main.js" defer></script> #}
+
+    {# {% include "partials/scripts/darkmode.html" %} #}
+
+    {# estado global da sidebar #}
+    {# <script>
+        const isSidebarOpen = localStorage.getItem('isSidebarOpen');
+        if (isSidebarOpen === 'true') {
+            //document.getElementById("nav-sidebar").add('w-60');
+            document.documentElement.classList.add('sidebar-expanded');
+        }
+    </script> #}
+
+
+    {# {% include "partials/scripts/alpine_utils.html" %} #}
+
+    {# <link rel="stylesheet" href="/static/css/app.css"> #}
+
+    {% block head  %}
+
+
+
+    {% endblock head %}
+
 </head>
+
 <body>
-{% block body %}
+    {% block body %}
 
-{% endblock body %}
-
+    {% endblock body %}
 </body>
+
 </html>

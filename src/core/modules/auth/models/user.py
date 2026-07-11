@@ -13,3 +13,7 @@ class User(BaseModel):
     username: Mapped[str] = mapped_column(
         String(100), index=True, nullable=False, unique=True
     )
+    email: Mapped[str] = mapped_column(
+        String(255), index=True, nullable=False, unique=True
+    )
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)

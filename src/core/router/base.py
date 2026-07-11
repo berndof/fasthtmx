@@ -60,26 +60,23 @@ class CustomRouter:
         return response
 
     def render_template(
-        self, request: Request, template: str, htmx_block: str | None = "content"
+        self,
+        request: Request,
+        template: str,
+        htmx_block: str | None = "content",
+        extra_context: dict | None = None,
     ):
-        # extrair o contexto do request.state.ctx
+        user = request_context.get("user")
+        context = {"request": request, "user": user}
+        if extra_context:
+            context.update(extra_context)
 
-        # context = request.state.pop("ctx")
-        cxx = request_context.get("user")
-        # self.logger.debug(cxx)
-
-        context = {"request": request}
-        # context["request"] = request
-
-        if (
-            self.is_htmx_request(request) and htmx_block
-        ):  # retorna somente o bloco do htmx
+        if self.is_htmx_request(request) and htmx_block:
             response = self.Template.TemplateResponse(
                 template, context, block_name=htmx_block
             )
-            # update title
 
-        else:  # retorna o template inteiro
+        else:
             response = self.Template.TemplateResponse(template, context)
 
         return response

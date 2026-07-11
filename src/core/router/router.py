@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import Request, Response
 from uuid import uuid4
 from typing import Callable
@@ -10,21 +11,31 @@ class ContextRoute(APIRoute):
         original_route_handler = super().get_route_handler()
 
         async def include_context_handler(request: Request) -> Response:
-            # request tracking
             request_id = str(uuid4())
 
-            # get context from session middleware
-            context = {"name": "admin"}  # example
+            user = None
+            session_id = request.cookies.get("appSession")
+            if session_id:
+                try:
+                    from core.unit_of_work import UnitOfWork
+                    from core.modules.auth.models.session import UserSession
+                    from core.modules.auth.models.user import User
 
-            # request.state.ctx = context
-            stoken = request_context.set({"context": context})
+                    uow: UnitOfWork = request.scope.get("uow")
+                    db = await uow.get_db_session()
+                    session = await db.get(UserSession, UUID(session_id))
+                    if session:
+                        user = await db.get(User, session.user_id)
+                except Exception:
+                    pass
 
-            # process route handler
+            stoken = request_context.set({"user": user})
+
             response: Response = await original_route_handler(request)
 
             response.headers["Request-ID"] = request_id
 
-            request_context.reset(stoken)  # boa pratica?
+            request_context.reset(stoken)
 
             return response
 

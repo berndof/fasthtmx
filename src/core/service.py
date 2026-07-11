@@ -13,9 +13,7 @@ class AbstractService(ABC):
         self.request: Request = request
 
         # melhorar assinatura
-        self.uow: UnitOfWork
-        if hasattr(self.request.state, "uow"):
-            self.uow = getattr(self.request.state, "uow")
+        self.uow: UnitOfWork = request.scope.get("uow")
 
         self.logger = getLogger(f"app.service{self.__class__.__name__.lower()}")
 

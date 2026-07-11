@@ -1,22 +1,11 @@
-from functools import wraps
-from fastapi import HTTPException
+from fastapi import Request, HTTPException
+from starlette.responses import RedirectResponse
+from core.context import request_context
+from core.modules.auth.models.user import User
 
 
-def require_permission(level: str):
-    def decorator(handler):
-        @wraps(handler)
-        async def wrapper(request, *args, **kwargs):
-            ctx = request.state.ctx
-
-            # valida permissao
-
-            if not user:
-                raise HTTPException(status_code=401)
-            if user.get("role") != level:
-                raise HTTPException(status_code=403)
-
-            return await handler(request, *args, **kwargs)
-
-        return wrapper
-
-    return decorator
+async def require_auth(request: Request) -> User:
+    user = request_context.get("user")
+    if not user:
+        raise HTTPException(status_code=303, headers={"Location": "/login"})
+    return user

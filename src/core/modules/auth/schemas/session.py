@@ -12,4 +12,4 @@ class GuestSession(Session):
 
 
 class UserSession(Session):
-    user_id: UUID
+    user_id: UUID  # empacotar o usuário todo
