@@ -140,9 +140,7 @@ class Registry(metaclass=Singleton):
         self._discover_models()
 
     def load_modules(self, app: FastAPI):
-        # self._discover_routers()
-        # self.discover_routers()
-        # self._load_routers(app)
+        self._discover_routers()
         self.load_routers(app)
 
     def load_global_middlewares(self, app: FastAPI):

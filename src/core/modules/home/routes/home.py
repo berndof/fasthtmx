@@ -8,22 +8,36 @@ from core.router.base import CustomRouter
 from fastapi import Request
 from core.router.methods import get
 from core.context import request_context
+from core.settings import GUEST_SESSIONS_ENABLED
 
 
 class HomeRouter(CustomRouter):
     prefix: str = ""
     template_path = "../templates"
 
-    # REDIRECT / -> /home
-    # @get("/")
-    # async def root_redirect(self, request: Request):  # verificar cookie de user):
-    #    return RedirectResponse(url="/home", #status_code=302)
+    @get("/")
+    async def root_redirect(self, request: Request):
+        ctx = request_context.get({})
+        user = ctx.get("user")
+
+        if GUEST_SESSIONS_ENABLED:
+            return RedirectResponse(url="/home", status_code=302)
+        else:
+            if user:
+                return RedirectResponse(url="/home", status_code=302)
+            return RedirectResponse(url="/login", status_code=302)
 
     @get("/home")
     async def get_home(self, request: Request):
         # self.logger.debug(request)
         # return {"Hello": "home"}
-        self.logger.debug(request_context.get("name"))
+        ctx = request_context.get({})
+        user = ctx.get("user")
+
+        # self.logger.debug(ctx.get("name"))
+
+        if not GUEST_SESSIONS_ENABLED and not user:
+            return RedirectResponse(url="/login", status_code=302)
 
         return self.render_template(request, "home.html")
 
@@ -33,6 +47,7 @@ class HomeRouter(CustomRouter):
         # self.logger.debug(request)
         # self.logger.debug(name)
 
-        self.logger.debug(request_context.get("name"))
+        ctx = request_context.get({})
+        self.logger.debug(ctx.get("name"))
 
         return self.render_template(request, "home.html")

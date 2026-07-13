@@ -29,6 +29,7 @@ class CustomRouter:
             self.router.add_api_route(path, getattr(self, func_name), methods=[method])
 
     def _setup_template(self, templates_dir: str | None = None):
+        # SETUP JINJA 2 TEMPLATES
         if not templates_dir:
             templates_dir = str(
                 Path(getfile(self.__class__)).parent.parent / "templates"
@@ -36,9 +37,10 @@ class CustomRouter:
 
         # self.logger.debug(f"path: {template_path} from {self.__class__.__name__}")
 
-        shared_templates = str(BASE_DIR / "core/templates")
+        core_templates = str(BASE_DIR / "core/templates")
+        root_templates = str(BASE_DIR / "templates")
 
-        return Jinja2Blocks([templates_dir, shared_templates])
+        return Jinja2Blocks([templates_dir, core_templates, root_templates])
 
     @classmethod
     def __init_subclass__(cls):
@@ -66,8 +68,16 @@ class CustomRouter:
         htmx_block: str | None = "content",
         extra_context: dict | None = None,
     ):
-        user = request_context.get("user")
-        context = {"request": request, "user": user}
+        ctx = request_context.get({})
+        user = ctx.get("user")
+        session_type = ctx.get("session_type", "guest")
+        groups = ctx.get("groups", [])
+        context = {
+            "request": request,
+            "user": user,
+            "session_type": session_type,
+            "groups": groups,
+        }
         if extra_context:
             context.update(extra_context)
 

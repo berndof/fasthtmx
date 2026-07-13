@@ -21,15 +21,24 @@ class ContextRoute(APIRoute):
                     from core.modules.auth.models.session import UserSession
                     from core.modules.auth.models.user import User
 
-                    uow: UnitOfWork = request.scope.get("uow")
+                    uow: UnitOfWork = request.scope.get("uow", None)
                     db = await uow.get_db_session()
                     session = await db.get(UserSession, UUID(session_id))
                     if session:
                         user = await db.get(User, session.user_id)
+                    if session:
+                        user = await db.get(User, session.user_id)
+                        if user:
+                            _ = user.groups
+
                 except Exception:
                     pass
 
-            stoken = request_context.set({"user": user})
+            groups = [g.name for g in user.groups] if user else []
+            session_type = "user" if user else "guest"
+            stoken = request_context.set(
+                {"user": user, "session_type": session_type, "groups": groups}
+            )
 
             response: Response = await original_route_handler(request)
 

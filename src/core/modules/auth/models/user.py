@@ -1,7 +1,7 @@
 from core.models import BaseModel
 from core.loader import registry
 from uuid import uuid4, UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Uuid, String
 
 
@@ -17,3 +17,7 @@ class User(BaseModel):
         String(255), index=True, nullable=False, unique=True
     )
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    groups: Mapped[list["Group"]] = relationship(
+        secondary="user_group", back_populates="users", lazy="selectin"
+    )

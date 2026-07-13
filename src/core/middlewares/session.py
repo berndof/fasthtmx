@@ -1,9 +1,9 @@
+from uuid import uuid4
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi import Request
 from starlette.responses import Response
-from core.unit_of_work import UnitOfWork
 from logging import getLogger
-from fastapi.responses import RedirectResponse
+from core.settings import GUEST_SESSIONS_ENABLED
 
 logger = getLogger("app.session.middleware")
 
@@ -11,27 +11,23 @@ logger = getLogger("app.session.middleware")
 class SessionMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         session = request.cookies.get("appSession")
-        enable_guest_session = True
+        enable_guest_session = GUEST_SESSIONS_ENABLED
 
-        logger.debug("Acessando uow de sessao agora")
-        uow = request.scope["uow"]
-
-        # try validate session
-
-        if not session:
-            # se guest enable
-            # criar uma guest session
-            ...
-            if not enable_guest_session:
-                return RedirectResponse("/login")
-
-        # tenta ver se tenho uma sessao conectada
-        # se nao existir uma sessao, e guest session for permitio, criar sessao nova.
-
-        # se sessao expirada / invalida ou sem sessao
-        # redirect to /login
+        if not session and enable_guest_session:
+            guest_id = str(uuid4())
+            request.state.guest_session_id = guest_id
 
         response = await call_next(request)
 
-        # Depois da rota
+        if not session and enable_guest_session:
+            guest_id = request.state.guest_session_id
+            response.set_cookie(
+                key="appSession",
+                value=guest_id,
+                httponly=True,
+                samesite="lax",
+                max_age=86400 * 7,
+                path="/",
+            )
+
         return response
