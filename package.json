@@ -17,6 +17,7 @@
   "packageManager": "pnpm@11.11.0+sha512.4463f65fd80ed80d69bc1d4bf163ee94f605c7380fc318bb5b2ebe15f8cd12d49c51a4d59e951b401e764d3b6ca751cbf51bc50ed7001a6bcb4935e684c34882",
   "dependencies": {
     "@tailwindcss/cli": "^4.3.2",
+    "alpinejs": "^3.15.12",
     "esbuild": "^0.28.1",
     "htmx.org": "^2.0.10",
     "lucide": "^1.24.0",
@@ -24,14 +25,7 @@
   },
   "devDependencies": {
     "@parcel/watcher": "^2.5.6",
-    "nodemon": "^3.1.11",
-    "concurrently": "^10.0.3"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@parcel/watcher",
-      "esbuild",
-      "tailwindcss"
-    ]
+    "concurrently": "^10.0.3",
+    "nodemon": "^3.1.11"
   }
 }
