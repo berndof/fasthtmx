@@ -1,11 +1,131 @@
 {% extends "base.html" %}
 
+{% block content %}
+<div class="flex-1 p-4 lg:p-6">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6">
 
-{% block body %}
-helo from body
+        <!-- Main Content -->
+        <div class="flex-1 min-w-0">
 
-se sessao
+            <!-- Welcome -->
+            <div class="mb-6">
+                {% if session_type == "user" %}
+                <h1 class="text-2xl font-bold text-gray-900">Bem-vindo, {{ user.username }}!</h1>
+                <p class="text-sm text-gray-600 mt-1">Hoje é um ótimo dia para produzir.</p>
+                {% else %}
+                <h1 class="text-2xl font-bold text-gray-900">Bem-vindo!</h1>
+                <p class="text-sm text-gray-600 mt-1">Faça login para acessar todos os recursos.</p>
+                {% endif %}
+            </div>
 
-se nao guest
+            <!-- Service Shortcuts -->
+            <section>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Atalhos</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <a href="#" class="flex flex-col items-center gap-2 p-4 bg-gray-50 border border-gray-300 rounded-md hover:border-gray-800 hover:shadow-sm transition-all">
+                        <span class="w-10 h-10 rounded-md bg-black/10 text-black flex items-center justify-center text-lg font-bold">RH</span>
+                        <span class="text-sm font-medium text-gray-900">Gestão de Pessoas</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center gap-2 p-4 bg-gray-50 border border-gray-300 rounded-md hover:border-gray-800 hover:shadow-sm transition-all">
+                        <span class="w-10 h-10 rounded-md bg-sky-500/10 text-sky-500 flex items-center justify-center text-lg font-bold">$</span>
+                        <span class="text-sm font-medium text-gray-900">Financeiro</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center gap-2 p-4 bg-gray-50 border border-gray-300 rounded-md hover:border-gray-800 hover:shadow-sm transition-all">
+                        <span class="w-10 h-10 rounded-md bg-green-500/10 text-green-500 flex items-center justify-center text-lg font-bold">TI</span>
+                        <span class="text-sm font-medium text-gray-900">TI & Suporte</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center gap-2 p-4 bg-gray-50 border border-gray-300 rounded-md hover:border-gray-800 hover:shadow-sm transition-all">
+                        <span class="w-10 h-10 rounded-md bg-amber-500/10 text-amber-500 flex items-center justify-center text-lg font-bold">MK</span>
+                        <span class="text-sm font-medium text-gray-900">Marketing</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center gap-2 p-4 bg-gray-50 border border-gray-300 rounded-md hover:border-gray-800 hover:shadow-sm transition-all">
+                        <span class="w-10 h-10 rounded-md bg-red-500/10 text-red-500 flex items-center justify-center text-lg font-bold">JD</span>
+                        <span class="text-sm font-medium text-gray-900">Jurídico</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center gap-2 p-4 bg-gray-50 border border-gray-300 rounded-md hover:border-gray-800 hover:shadow-sm transition-all">
+                        <span class="w-10 h-10 rounded-md bg-black/10 text-black flex items-center justify-center text-lg font-bold">CM</span>
+                        <span class="text-sm font-medium text-gray-900">Compras</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center gap-2 p-4 bg-gray-50 border border-gray-300 rounded-md hover:border-gray-800 hover:shadow-sm transition-all">
+                        <span class="w-10 h-10 rounded-md bg-sky-500/10 text-sky-500 flex items-center justify-center text-lg font-bold">LG</span>
+                        <span class="text-sm font-medium text-gray-900">Logística</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center gap-2 p-4 bg-gray-50 border border-gray-300 rounded-md hover:border-gray-800 hover:shadow-sm transition-all">
+                        <span class="w-10 h-10 rounded-md bg-green-500/10 text-green-500 flex items-center justify-center text-lg font-bold">+</span>
+                        <span class="text-sm font-medium text-gray-900">Mais Serviços</span>
+                    </a>
+                </div>
+            </section>
 
-{% endblock body %}
+            <!-- Announcements -->
+            <section class="mt-8">
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Avisos</h2>
+                <div class="space-y-3">
+                    <div class="p-4 bg-gray-50 border border-gray-300 rounded-md flex items-start gap-3">
+                        <span class="w-2 h-2 mt-1.5 rounded-full bg-sky-500 shrink-0"></span>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">Manutenção Programada</p>
+                            <p class="text-xs text-gray-600 mt-0.5">O sistema estará indisponível no sábado das 14h às 18h para atualização.</p>
+                            <span class="text-xs text-gray-600 mt-1 block">Publicado em 10/07/2026</span>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-gray-50 border border-gray-300 rounded-md flex items-start gap-3">
+                        <span class="w-2 h-2 mt-1.5 rounded-full bg-amber-500 shrink-0"></span>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">Novo Benefício</p>
+                            <p class="text-xs text-gray-600 mt-0.5">Confira o novo convênio de saúde disponível para todos os colaboradores.</p>
+                            <span class="text-xs text-gray-600 mt-1 block">Publicado em 08/07/2026</span>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-gray-50 border border-gray-300 rounded-md flex items-start gap-3">
+                        <span class="w-2 h-2 mt-1.5 rounded-full bg-green-500 shrink-0"></span>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">Resultados do Trimestre</p>
+                            <p class="text-xs text-gray-600 mt-0.5">Os relatórios do Q2 já estão disponíveis no painel Financeiro.</p>
+                            <span class="text-xs text-gray-600 mt-1 block">Publicado em 05/07/2026</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Right Sidebar -->
+        <aside class="w-full lg:w-80 shrink-0 space-y-4">
+
+            <!-- User card -->
+            <div class="p-4 bg-gray-50 border border-gray-300 rounded-md">
+                {% if session_type == "user" %}
+                <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-full bg-black text-gray-100 flex items-center justify-center text-sm font-bold">
+                        {{ user.username[:1].upper() }}
+                    </span>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">{{ user.username }}</p>
+                        <p class="text-xs text-gray-600">{{ user.email }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-bold">?</span>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">Convidado</p>
+                        <a href="/login" class="text-xs text-black hover:underline">Fazer login</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Notes -->
+            <div class="p-4 bg-gray-50 border border-gray-300 rounded-md">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Notas Rápidas</h3>
+                <div class="h-40 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md">
+                    <p class="text-xs text-gray-600 text-center px-4">Espaço reservado para notas e lembretes</p>
+                </div>
+            </div>
+
+        </aside>
+
+    </div>
+</div>
+{% endblock content %}
