@@ -7,7 +7,7 @@ from fastapi.responses import Response
 from jinja2_fragments.fastapi import Jinja2Blocks
 from core.router.router import ContextRoute
 from core.context import request_context
-from core.settings import BASE_DIR
+from core.settings import BASE_DIR, LDAP_ENABLED
 
 
 class CustomRouter:
@@ -77,6 +77,7 @@ class CustomRouter:
             "user": user,
             "session_type": session_type,
             "groups": groups,
+            "ldap_enabled": LDAP_ENABLED,
         }
         if extra_context:
             context.update(extra_context)

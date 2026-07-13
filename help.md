@@ -1,4 +1,8 @@
-#Help
+Fundo: #0A122A (Um azul-marinho profundo e escuro, adaptado para a inversão)
+
+Texto (Logotipo): #FFFFFF (Branco puro)
+
+Tom de Aço (Para hover ou bordas, se necessário): #B0BEC5#Help
 
 #Alembic
 https://alembic.sqlalchemy.org/en/latest/cookbook.html

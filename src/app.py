@@ -17,6 +17,11 @@ app = app_factory()
 app.mount(
     "/static", StaticFiles(directory=str(BASE_DIR / "static/dist")), name="static"
 )
+app.mount(
+    "/img",
+    StaticFiles(directory=str(BASE_DIR / "static/img")),
+    name="static_images",
+)
 
 # load_middlewares
 # handlers de excessao global

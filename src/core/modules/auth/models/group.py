@@ -4,6 +4,7 @@ from uuid import uuid4, UUID
 from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Uuid, String, DateTime, func, Table, Column, ForeignKey
+from core.modules.auth.models.ad_mapping import AdGroupMapping
 
 
 user_group = Table(
@@ -29,4 +30,8 @@ class Group(BaseModel):
 
     users: Mapped[list["User"]] = relationship(
         secondary="user_group", back_populates="groups", lazy="selectin"
+    )
+
+    ad_mapping: Mapped[AdGroupMapping | None] = relationship(
+        back_populates="group", uselist=False, cascade="all, delete-orphan"
     )

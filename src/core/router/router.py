@@ -26,8 +26,6 @@ class ContextRoute(APIRoute):
                     session = await db.get(UserSession, UUID(session_id))
                     if session:
                         user = await db.get(User, session.user_id)
-                    if session:
-                        user = await db.get(User, session.user_id)
                         if user:
                             _ = user.groups
 

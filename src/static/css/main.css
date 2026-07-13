@@ -91,12 +91,73 @@
     ;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
 .htmx-request .animate-spin,
 .htmx-request.animate-spin {
     animation: spin 1s linear infinite;
 }
 
+/* Thin scrollbar — narrow and unobtrusive */
+.thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-outline) transparent;
+}
+.thin-scrollbar::-webkit-scrollbar { width: 4px; }
+.thin-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.thin-scrollbar::-webkit-scrollbar-thumb { background: var(--color-outline); border-radius: 4px; }
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+.inner-shadow-scroll {
+    background:
+        linear-gradient(white 30%, rgba(255,255,255,0)),
+        linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
+        radial-gradient(farthest-side at 50% 0, rgba(0,0,0,0.2), rgba(0,0,0,0)),
+        radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,0.2), rgba(0,0,0,0)) 0 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+    background-attachment: local, local, scroll, scroll;
+}
+
 @keyframes spin {
     from { transform: rotate(0def); }
     to { transform: rotate(360deg); }
+}
+
+
+@layer top-navbar {
+    .nav-bar.menu {
+        @apply
+            items-center gap-1 text-on-primary
+        ;
+    }
+
+    .top-nav-btn {
+        @apply
+        flex items-center gap-1.5 px-2 py-1 text-[13px] font-medium hover:bg-gray-50 transition-all cursor-default rounded-radius hover:text-on-surface
+
+        ;
+    }
+
+    .top-nav-dropdown {
+        @apply
+            gap-1.5 px-3 py-1.5
+        ;
+    }
+
+    .top-nav-dropdown-container {
+
+    }
+
+
+
+
 }

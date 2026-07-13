@@ -7,7 +7,6 @@ from core.models import BaseModel
 from sqlalchemy.orm import DeclarativeBase
 from typing import TypeVar, Any
 from core.router.base import CustomRouter
-from core.modules.home.routes.home import HomeRouter
 
 
 # from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -140,6 +139,7 @@ class Registry(metaclass=Singleton):
         self._discover_models()
 
     def load_modules(self, app: FastAPI):
+        self._discover_models()
         self._discover_routers()
         self.load_routers(app)
 

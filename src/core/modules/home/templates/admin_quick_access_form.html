@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>{{ "Editar" if item else "Novo" }} Acesso Rápido — Admin — Torres SCC</title>
+{% endblock title %}
+
+{% block content %}
+<div class="flex-1 p-4 lg:p-6">
+    <div class="max-w-lg mx-auto">
+
+        <div class="mb-6">
+            <a href="/admin/acesso-rapido" class="text-sm text-gray-600 hover:text-gray-900">&larr; Voltar</a>
+            <h1 class="text-2xl font-bold text-gray-900 mt-2">
+                {{ "Editar" if item else "Novo" }} Item
+            </h1>
+            {% if item and item.is_special %}
+            <p class="text-xs text-amber-600 mt-1">Este é o item especial "Mais Serviços".</p>
+            {% endif %}
+        </div>
+
+        <form method="post" class="space-y-4">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                <input type="text" name="name" id="name" required
+                       value="{{ item.name if item else '' }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black">
+            </div>
+
+            <div>
+                <label for="abbr" class="block text-sm font-medium text-gray-700 mb-1">Abreviação</label>
+                <input type="text" name="abbr" id="abbr" required maxlength="10"
+                       value="{{ item.abbr if item else '' }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black">
+                <p class="text-xs text-gray-500 mt-1">Texto curto exibido no ícone (ex: RH, TI)</p>
+            </div>
+
+            <div>
+                <label for="href" class="block text-sm font-medium text-gray-700 mb-1">Link</label>
+                <input type="text" name="href" id="href" required
+                       value="{{ item.href if item else '#' }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="bg_class" class="block text-sm font-medium text-gray-700 mb-1">Classe de Fundo</label>
+                    <input type="text" name="bg_class" id="bg_class"
+                           value="{{ item.bg_class if item else 'bg-black/10' }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black">
+                    <p class="text-xs text-gray-500 mt-1">Tailwind: <code>bg-{color}-{opacity}</code></p>
+                </div>
+                <div>
+                    <label for="text_class" class="block text-sm font-medium text-gray-700 mb-1">Classe de Texto</label>
+                    <input type="text" name="text_class" id="text_class"
+                           value="{{ item.text_class if item else 'text-black' }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black">
+                    <p class="text-xs text-gray-500 mt-1">Tailwind: <code>text-{color}</code></p>
+                </div>
+            </div>
+
+            <div>
+                <label for="ordem" class="block text-sm font-medium text-gray-700 mb-1">Ordem</label>
+                <input type="number" name="ordem" id="ordem" min="0"
+                       value="{{ item.ordem if item else 0 }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black">
+            </div>
+
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="is_active" id="is_active" value="true"
+                       {% if item is none or item.is_active %}checked{% endif %}
+                       class="w-4 h-4 border-gray-300 rounded text-black focus:ring-black/20">
+                <label for="is_active" class="text-sm font-medium text-gray-700">Ativo</label>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
+                    {{ "Salvar" if item else "Criar" }}
+                </button>
+                <a href="/admin/acesso-rapido"
+                   class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Mapeamento AD — Torres SCC</title>
+{% endblock title %}
+
+{% block content %}
+<div class="flex-1 p-4 lg:p-6">
+    <div class="max-w-4xl mx-auto">
+
+        <div class="mb-6">
+            <a href="/admin" class="text-sm text-gray-500 hover:text-gray-900">&larr; Voltar</a>
+            <h1 class="text-2xl font-bold text-gray-900 mt-1">Mapeamento AD → Grupos</h1>
+            <p class="text-sm text-gray-600 mt-1">
+                Associe grupos do Active Directory a grupos locais do sistema.
+                Usuários que fizerem login via AD serão automaticamente vinculados aos grupos locais mapeados.
+            </p>
+        </div>
+
+        <div class="flex items-center justify-between mb-4">
+            <div></div>
+            <button hx-post="/admin/ldap-mapping/sync"
+                    hx-target="#sync-result"
+                    hx-swap="innerHTML"
+                    {% if not ldap_enabled %}disabled{% endif %}
+                    class="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Sincronizar grupos do AD
+            </button>
+        </div>
+
+        <div id="sync-result"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Form -->
+            <div class="p-5 bg-white border border-gray-300 rounded-md shadow-sm">
+                <h2 class="text-sm font-semibold text-gray-900 mb-4">Novo Mapeamento</h2>
+
+                {% if not ldap_enabled %}
+                <p class="text-sm text-amber-600 bg-amber-50 border border-amber-200 px-3 py-2 rounded-md">
+                    LDAP não está configurado. Configure as variáveis LDAP_* no .env para ativar.
+                </p>
+                {% endif %}
+
+                <form action="/admin/ldap-mapping/create" method="post" class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Grupo Local</label>
+                        <select name="group_id" required
+                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-all">
+                            <option value="">Selecione um grupo...</option>
+                            {% for g in groups %}
+                            <option value="{{ g.id }}">{{ g.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome do Grupo AD (CN)</label>
+                        <input type="text" name="ad_group_name" placeholder="Ex: App-Admins" required
+                               class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">DN do Grupo AD</label>
+                        <input type="text" name="ad_group_dn" placeholder="Ex: CN=App-Admins,OU=Groups,DC=dominio,DC=com" required
+                               class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-all">
+                        <p class="text-xs text-gray-500 mt-1">O Distinguished Name completo do grupo no Active Directory.</p>
+                    </div>
+                    <button type="submit" {% if not ldap_enabled %}disabled{% endif %}
+                            class="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Adicionar Mapeamento
+                    </button>
+                </form>
+            </div>
+
+            <!-- List -->
+            <div class="p-5 bg-white border border-gray-300 rounded-md shadow-sm">
+                <h2 class="text-sm font-semibold text-gray-900 mb-4">Mapeamentos Existentes</h2>
+
+                {% if mappings %}
+                <div class="space-y-2">
+                    {% for m in mappings %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-md">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-900">{{ m.ad_group_name }}</span>
+                                <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                </svg>
+                                <span class="text-sm font-medium text-gray-900">{{ m.group.name }}</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-0.5 truncate">{{ m.ad_group_dn }}</p>
+                        </div>
+                        <form action="/admin/ldap-mapping/{{ m.id }}/delete" method="post" class="ml-2 shrink-0">
+                            <button type="submit" onclick="return confirm('Remover mapeamento?')"
+                                    class="px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 border border-red-200 rounded-md transition-colors">
+                                Remover
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-500 text-center py-8">Nenhum mapeamento configurado ainda.</p>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block sync_result %}
+{% if sync_result is defined and sync_result %}
+<div class="mb-4">
+    {% if sync_result.errors %}
+    <div class="mb-2 p-3 bg-red-50 border border-red-200 rounded-md">
+        <p class="text-sm font-medium text-red-800">Erros durante a sincronização:</p>
+        <ul class="mt-1 text-sm text-red-700 list-disc list-inside">
+            {% for err in sync_result.errors %}
+            <li>{{ err }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    {% if sync_result.groups_created or sync_result.mappings_created %}
+    <div class="p-3 bg-green-50 border border-green-200 rounded-md">
+        <p class="text-sm text-green-800">
+            Sincronização concluída: {{ sync_result }}
+        </p>
+    </div>
+    {% elif not sync_result.errors %}
+    <div class="p-3 bg-blue-50 border border-blue-200 rounded-md">
+        <p class="text-sm text-blue-800">
+            Sincronização concluída: {{ sync_result }}
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

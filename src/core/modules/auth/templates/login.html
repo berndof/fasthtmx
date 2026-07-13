@@ -23,8 +23,10 @@
                 {% endif %}
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" name="email" placeholder="seu@email.com" required autofocus
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        {% if ldap_enabled %}Usuário{% else %}Email{% endif %}
+                    </label>
+                    <input type="text" name="username" placeholder="{% if ldap_enabled %}seu.usuario{% else %}seu@email.com{% endif %}" required autofocus
                            class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-all">
                 </div>
 

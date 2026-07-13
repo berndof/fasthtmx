@@ -1,14 +1,12 @@
-from fastapi import APIRouter, Request
-from fastapi.responses import RedirectResponse
-
-# from core import registry
-# from core.modules.auth.services.user import UserService
-# from core.modules.auth.schemas.user import UserIn
-from core.router.base import CustomRouter
 from fastapi import Request
+from fastapi.responses import RedirectResponse
+from sqlalchemy import select
+
+from core.router.base import CustomRouter
 from core.router.methods import get
 from core.context import request_context
 from core.settings import GUEST_SESSIONS_ENABLED
+from core.modules.home.models.quick_access import QuickAccessItem
 
 
 class HomeRouter(CustomRouter):
@@ -29,24 +27,40 @@ class HomeRouter(CustomRouter):
 
     @get("/home")
     async def get_home(self, request: Request):
-        # self.logger.debug(request)
-        # return {"Hello": "home"}
         ctx = request_context.get({})
         user = ctx.get("user")
-
-        # self.logger.debug(ctx.get("name"))
 
         if not GUEST_SESSIONS_ENABLED and not user:
             return RedirectResponse(url="/login", status_code=302)
 
-        return self.render_template(request, "home.html")
+        uow = request.scope.get("uow")
+        db = await uow.get_db_session()
+
+        result = await db.execute(
+            select(QuickAccessItem)
+            .where(QuickAccessItem.is_active == True)
+            .order_by(QuickAccessItem.is_special, QuickAccessItem.ordem)
+        )
+        items = result.scalars().all()
+        items_data = [
+            {
+                "id": str(i.id),
+                "name": i.name,
+                "abbr": i.abbr,
+                "href": i.href,
+                "bgClass": i.bg_class,
+                "textClass": i.text_class,
+                "is_special": i.is_special,
+            }
+            for i in items
+        ]
+
+        return self.render_template(
+            request, "home.html", extra_context={"quick_access_items": items_data}
+        )
 
     @get("/nada/{name}")
-    # @permission(group="group_name")
     async def get_nada(self, request: Request, name: str):
-        # self.logger.debug(request)
-        # self.logger.debug(name)
-
         ctx = request_context.get({})
         self.logger.debug(ctx.get("name"))
 
