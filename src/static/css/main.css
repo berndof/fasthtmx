@@ -136,7 +136,7 @@ body {
 @layer top-navbar {
     .nav-bar.menu {
         @apply
-            items-center gap-1 text-on-primary
+            items-center text-on-primary
         ;
     }
 

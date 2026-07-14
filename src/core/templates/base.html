@@ -174,7 +174,7 @@ document.addEventListener("alpine:init", () => {
         <div class="md:hidden">
         </div>
 
-        <div class="hidden md:flex nav-bar menu gap-2 items-center">
+        <div class="flex flex-1 nav-bar menu gap-4 items-center">
 
             <div>
                 <a href="/home" class="top-nav-btn">
@@ -187,7 +187,7 @@ document.addEventListener("alpine:init", () => {
                  @mouseenter="onEnter('servicos')"
                  @mouseleave="onLeave()">
                 <button class="top-nav-btn flex items-center gap-1 transition-colors"
-                        :class="isOpen('servicos') ? 'bg-white/10 text-white' : ''"
+                        :class="isOpen('servicos') ? 'bg-gray-50 text-on-surface' : ''"
                         @click="toggle('servicos')">
                     Serviços
                     <span class="pointer-events-none transition-transform duration-200"
@@ -211,7 +211,7 @@ document.addEventListener("alpine:init", () => {
                  @mouseenter="onEnter('relatorios')"
                  @mouseleave="onLeave()">
                 <button class="top-nav-btn flex items-center gap-1 transition-colors"
-                        :class="isOpen('relatorios') ? 'bg-white/10 text-white' : ''"
+                        :class="isOpen('relatorios') ? 'text-on-surface bg-gray-50' : ''"
                         @click="toggle('relatorios')">
                     Relatórios
                     <span class="pointer-events-none transition-transform duration-200"
@@ -234,7 +234,7 @@ document.addEventListener("alpine:init", () => {
                  @mouseenter="onEnter('administrativo')"
                  @mouseleave="onLeave()">
                 <button class="top-nav-btn flex items-center gap-1 transition-colors"
-                        :class="isOpen('administrativo') ? 'bg-white/10 text-white' : ''"
+                        :class="isOpen('administrativo') ? text-on-surface bg-gray-50' : ''"
                         @click="toggle('administrativo')">
                     Administrativo
                     <span class="pointer-events-none transition-transform duration-200"
@@ -257,7 +257,7 @@ document.addEventListener("alpine:init", () => {
                  @mouseenter="onEnter('ramais')"
                  @mouseleave="onLeave()">
                 <button class="top-nav-btn flex items-center gap-1 transition-colors"
-                        :class="isOpen('ramais') ? 'bg-white/10 text-white' : ''"
+                        :class="isOpen('ramais') ? 'text-on-surface bg-gray-50' : ''"
                         @click="toggle('ramais')">
                     Ramais
                     <span class="pointer-events-none transition-transform duration-200"
