@@ -1,5 +1,11 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 @variant dark (&:where(.dark, .dark *));
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
 @theme {
     /* light theme */
     --color-surface: var(--color-white);
@@ -91,29 +97,24 @@
     ;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-
-body {
-  font-family: 'Roboto', sans-serif;
-}
-
 .htmx-request .animate-spin,
 .htmx-request.animate-spin {
     animation: spin 1s linear infinite;
 }
 
-/* Thin scrollbar — narrow and unobtrusive */
+/* Scrollbar — thin but visible */
 .thin-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: var(--color-outline) transparent;
 }
-.thin-scrollbar::-webkit-scrollbar { width: 4px; }
+.thin-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
 .thin-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.thin-scrollbar::-webkit-scrollbar-thumb { background: var(--color-outline); border-radius: 4px; }
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+.thin-scrollbar::-webkit-scrollbar-thumb { background: var(--color-outline); border-radius: 6px; }
+.thin-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--color-outline-strong); }
 
-body {
-  font-family: 'Roboto', sans-serif;
+/* Subtle right-edge shadow hinting at more content */
+.scroll-hint {
+    box-shadow: inset -6px 0 6px -6px rgba(0,0,0,0.06);
 }
 
 .inner-shadow-scroll {

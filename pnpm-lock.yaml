@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@alpinejs/persist':
+        specifier: ^3.15.12
+        version: 3.15.12
       '@tailwindcss/cli':
         specifier: ^4.3.2
         version: 4.3.2
@@ -38,6 +41,9 @@ importers:
         version: 3.1.14
 
 packages:
+
+  '@alpinejs/persist@3.15.12':
+    resolution: {integrity: sha512-vzDRf/3r8B5ihHvLYUkkg+XbJz4nNst+5jR5BM4Uff3BhdRenJlXKFnd3kYbM2Z/KCU65zg5neqOVhbNpytZ9A==}
 
   '@esbuild/aix-ppc64@0.28.1':
     resolution: {integrity: sha512-Svl7tq8k/08+p6CXPpRjQ1fKX+1odH/BQbb48fV6fj3CWHhsoIOoY87w1oHXm0qEpkIK3ZfVgp0hed3XBXzXMQ==}
@@ -825,6 +831,8 @@ packages:
     engines: {node: ^20.19.0 || ^22.12.0 || >=23}
 
 snapshots:
+
+  '@alpinejs/persist@3.15.12': {}
 
   '@esbuild/aix-ppc64@0.28.1':
     optional: true

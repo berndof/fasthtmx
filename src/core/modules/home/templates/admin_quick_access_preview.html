@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Preview Acesso Rápido — Admin — Torres SCC</title>
+{% endblock title %}
+
+{% block content %}
+<div class="flex-1 p-4 lg:p-6">
+    <div class="max-w-6xl mx-auto">
+
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Preview — Acesso Rápido</h1>
+                <p class="text-sm text-gray-600 mt-1">Visualização do componente antigo (arrasta e solta + favoritos).</p>
+            </div>
+            <a href="/admin/acesso-rapido"
+               class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors">
+                &larr; Gerenciar Itens
+            </a>
+        </div>
+
+        {% include "componentes/accesso_rapido_panel.html" %}
+
+    </div>
+</div>
+{% endblock content %}

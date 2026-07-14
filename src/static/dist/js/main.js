@@ -26752,9 +26752,85 @@ var createIcons = ({
 
 // src/static/js/main.js
 init_htmx_esm();
+
+// node_modules/.pnpm/@alpinejs+persist@3.15.12/node_modules/@alpinejs/persist/dist/module.esm.js
+function src_default2(Alpine2) {
+  let persist = () => {
+    let alias;
+    let storage;
+    try {
+      storage = localStorage;
+    } catch (e) {
+      console.error(e);
+      console.warn("Alpine: $persist is using temporary storage since localStorage is unavailable.");
+      let dummy = /* @__PURE__ */ new Map();
+      storage = {
+        getItem: dummy.get.bind(dummy),
+        setItem: dummy.set.bind(dummy)
+      };
+    }
+    return Alpine2.interceptor((initialValue, getter, setter, path, key) => {
+      let lookup = alias || `_x_${path}`;
+      let initial = storageHas(lookup, storage) ? storageGet(lookup, storage) : initialValue;
+      setter(initial);
+      Alpine2.effect(() => {
+        let value = getter();
+        storageSet(lookup, value, storage);
+        setter(value);
+      });
+      return initial;
+    }, (func) => {
+      func.as = (key) => {
+        alias = key;
+        return func;
+      }, func.using = (target) => {
+        storage = target;
+        return func;
+      };
+    });
+  };
+  Object.defineProperty(Alpine2, "$persist", { get: () => persist() });
+  Alpine2.magic("persist", persist);
+  Alpine2.persist = (key, { get: get3, set: set3 }, storage = localStorage) => {
+    let initial = storageHas(key, storage) ? storageGet(key, storage) : get3();
+    set3(initial);
+    Alpine2.effect(() => {
+      let value = get3();
+      storageSet(key, value, storage);
+      set3(value);
+    });
+  };
+}
+function storageHas(key, storage) {
+  return storage.getItem(key) !== null;
+}
+function storageGet(key, storage) {
+  let value = storage.getItem(key);
+  if (value === void 0)
+    return;
+  return JSON.parse(value);
+}
+function storageSet(key, value, storage) {
+  storage.setItem(key, JSON.stringify(value));
+}
+var module_default2 = src_default2;
+
+// src/static/js/main.js
 createIcons({ icons: iconsAndAliases_exports });
 window.Alpine = module_default;
 window.htmx = (init_htmx_esm(), __toCommonJS(htmx_esm_exports));
+module_default.plugin(module_default2);
+module_default.store("theme", {
+  darkMode: module_default.$persist(false).as("darkMode"),
+  toggle() {
+    this.darkMode = !this.darkMode;
+  },
+  init() {
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches && !localStorage.getItem("darkMode")) {
+      this.darkMode = true;
+    }
+  }
+});
 module_default.start();
 //!!!!!!
 /*! Bundled license information:

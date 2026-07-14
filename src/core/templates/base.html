@@ -11,91 +11,121 @@
     <script type="module" src="/static/js/main.js" defer></script>
     <link rel="stylesheet" href="/static/css/main.css">
 
+    <script>
+        function registerComponent(name, component) {
+            const start = () => {
+                console.debug(`Registrando componente: ${name}`);
+                Alpine.data(name, component);
+            };
+
+            if (window.Alpine) {
+                start();
+            } else {
+                document.addEventListener("alpine:init", start)
+            }
+        }
+    </script>
+
+    <script>
+        // Função para aplicar a classe 'dark' antes do carregamento completo.
+        if (localStorage.getItem('darkMode') === 'true' ||
+            (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
     {% block head %}{% endblock head %}
 </head>
 <body class="min-h-screen bg-white text-gray-600 flex flex-col">
 
+
+
 <script>
-document.addEventListener("alpine:init", () => {
 
-    Alpine.data("topNavbar", () => ({
-        activeMenu: null,
-        closeTimer: null,
-        isMouseOverMenu: false,
+const topnavbar = () => ({
+    activeMenu: null,
+    closeTimer: null,
+    isMouseOverMenu: false,
 
-        regioes: [],
-        favorites: JSON.parse(localStorage.getItem('ramalFavorites') || '[]'),
+    regioes: [],
+    favorites: JSON.parse(localStorage.getItem('ramalFavorites') || '[]'),
 
-        async init() {
-            try {
-                const resp = await fetch('/api/ramais');
-                this.regioes = await resp.json();
-            } catch (e) {
-                console.error('Erro ao carregar ramais:', e);
-            }
-            window.addEventListener('ramal-fav-change', (e) => {
-                this.favorites = e.detail.favorites;
-            });
-        },
+    async init() {
+        try {
+            const resp = await fetch('/api/ramais');
+            this.regioes = await resp.json();
+        } catch (e) {
+            console.error('Erro ao carregar ramais:', e);
+        }
+        window.addEventListener('ramal-fav-change', (e) => {
+            this.favorites = e.detail.favorites;
+        });
+    },
 
-        open(menu) {
-            clearTimeout(this.closeTimer);
-            this.activeMenu = menu;
-        },
+    open(menu) {
+        clearTimeout(this.closeTimer);
+        this.activeMenu = menu;
+    },
 
-        close() {
-            this.closeTimer = setTimeout(() => {
-                if (!this.isMouseOverMenu) {
-                    this.activeMenu = null;
-                }
-            }, 200);
-        },
-
-        closeAll() {
-            this.activeMenu = null;
-        },
-
-        toggle(menu) {
-            if (this.activeMenu === menu) {
+    close() {
+        this.closeTimer = setTimeout(() => {
+            if (!this.isMouseOverMenu) {
                 this.activeMenu = null;
-            } else {
-                clearTimeout(this.closeTimer);
-                this.activeMenu = menu;
             }
-        },
+        }, 200);
+    },
 
-        isOpen(menu) {
-            return this.activeMenu === menu;
-        },
+    closeAll() {
+        this.activeMenu = null;
+    },
 
-        onEnter(menu) {
-            this.isMouseOverMenu = true;
+    toggle(menu) {
+        if (this.activeMenu === menu) {
+            this.activeMenu = null;
+        } else {
             clearTimeout(this.closeTimer);
             this.activeMenu = menu;
-        },
+        }
+    },
 
-        onLeave() {
-            this.isMouseOverMenu = false;
-            this.close();
-        },
+    isOpen(menu) {
+        return this.activeMenu === menu;
+    },
 
-        toggleFav(id) {
-            if (this.favorites.includes(id)) {
-                this.favorites = this.favorites.filter(f => f !== id);
-            } else {
-                this.favorites.push(id);
-            }
-            localStorage.setItem('ramalFavorites', JSON.stringify(this.favorites));
-            window.dispatchEvent(new CustomEvent('ramal-fav-change', {
-                detail: { favorites: this.favorites }
-            }));
-        },
+    onEnter(menu) {
+        this.isMouseOverMenu = true;
+        clearTimeout(this.closeTimer);
+        this.activeMenu = menu;
+    },
 
-        isFav(id) { return this.favorites.includes(id); }
-    }))
+    onLeave() {
+        this.isMouseOverMenu = false;
+        this.close();
+    },
 
-})
+    toggleFav(id) {
+        if (this.favorites.includes(id)) {
+            this.favorites = this.favorites.filter(f => f !== id);
+        } else {
+            this.favorites.push(id);
+        }
+        localStorage.setItem('ramalFavorites', JSON.stringify(this.favorites));
+        window.dispatchEvent(new CustomEvent('ramal-fav-change', {
+            detail: { favorites: this.favorites }
+        }));
+    },
+
+    isFav(id) { return this.favorites.includes(id); }
+});
+
+registerComponent("topNavbar", topnavbar);
 </script>
+
+
+
 
 {% block topbar %}
 
@@ -104,8 +134,9 @@ document.addEventListener("alpine:init", () => {
     <div class="flex-1 px-4 lg:px-6 py-2">
         <div class="flex items-center justify-between h-14 max-w-6xl mx-auto">
 
+                {# NEED TO CACHE THIS IMAGE #}
                 <a href="/home" class="flex items-center gap-2">
-                    <img src="/img/scclogo-branca.jpg" alt="Torres SCC" class="w-16 h-9">
+                    <img src="/img/scclogo-branca.jpg" alt="Grupo SCC" class="w-16 h-9">
                 </a>
 
             <div class="flex items-center gap-3">
@@ -149,13 +180,33 @@ document.addEventListener("alpine:init", () => {
                 </div>
                 {% else %}
 
-                <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open" @keydown.escape="open = false"
-                            class="text-sm font-medium text-black hover:underline">
+                <div class="relative"
+                     @mouseenter="onEnter('login')"
+                     @mouseleave="onLeave()">
+                    {# ---- ESTILO 1: Sólido azul ---- #}
+                    {# <button @click="toggle('login')"
+                            class="px-4 py-1.5 bg-[#004a8f] text-white text-sm font-medium rounded-md hover:bg-[#003a72] transition-colors shadow-sm"
+                            :class="isOpen('login') ? 'bg-[#003a72] ring-1 ring-white/20' : ''">
                         Entrar
+                    </button> #}
+                    {# ---- ESTILO 2 (ATIVO): Outline ---- #}
+                    <button @click="toggle('login')"
+                            class="flex gap-3 px-4 py-1.5 border-2 border-[#004a8f] text-[#004a8f] text-sm font-medium rounded-md hover:bg-[#004a8f] hover:text-white transition-colors"
+                            :class="isOpen('login') ? 'bg-[#004a8f] text-white' : ''">
+                        Entrar
+                        <i data-lucide="log-in" class="w-4 h-4"></i>
                     </button>
-                    <div x-show="open" @click.outside="open = false" x-cloak
-                         class="absolute top-full right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50">
+                    {# ---- ESTILO 3: Ghost com ícone ---- #}
+                    {#  <button @click="toggle('login')"
+                            class="flex items-center gap-1.5 px-3 py-1.5 text-gray-600 text-sm font-medium rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                            :class="isOpen('login') ? 'bg-gray-100 text-gray-900' : ''">
+                        <i data-lucide="log-in" class="w-4 h-4"></i>
+                        Entrar
+                    </button> #}
+                    <div x-show="isOpen('login')" x-cloak
+                         @mouseenter="onEnter('login')"
+                         @mouseleave="onLeave()"
+                         class="absolute top-full left-10 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50">
                         {% include "_login_form.html" ignore missing %}
                     </div>
                 </div>
@@ -166,7 +217,7 @@ document.addEventListener("alpine:init", () => {
     </div>
 </div>
 {# sticky header #}
-<header class="md:sticky top-0 z-40 bg-[#004a8f]">
+<header class="sticky top-0 z-40 bg-[#004a8f] shadow-md">
     <div class="flex-1 px-4 lg:px-6">
     <nav class="flex items-center justify-between h-12 max-w-6xl mx-auto">
 
@@ -234,7 +285,7 @@ document.addEventListener("alpine:init", () => {
                  @mouseenter="onEnter('administrativo')"
                  @mouseleave="onLeave()">
                 <button class="top-nav-btn flex items-center gap-1 transition-colors"
-                        :class="isOpen('administrativo') ? text-on-surface bg-gray-50' : ''"
+                        :class="isOpen('administrativo') ? 'text-on-surface bg-gray-50' : ''"
                         @click="toggle('administrativo')">
                     Administrativo
                     <span class="pointer-events-none transition-transform duration-200"
@@ -294,6 +345,35 @@ document.addEventListener("alpine:init", () => {
                     </template>
                 </div>
             </div>
+
+            {% if "admin" in groups or "root" in groups %}
+            {# Admin #}
+            <div class="relative"
+                 @mouseenter="onEnter('admin')"
+                 @mouseleave="onLeave()">
+                <button class="top-nav-btn flex items-center gap-1 transition-colors"
+                        :class="isOpen('admin') ? 'text-on-surface bg-gray-50' : ''"
+                        @click="toggle('admin')">
+                    Admin
+                    <span class="pointer-events-none transition-transform duration-200"
+                          :class="isOpen('admin') ? 'rotate-180' : 'rotate-0'">
+                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                    </span>
+                </button>
+                <div x-show="isOpen('admin')" x-cloak
+                     @mouseenter="onEnter('admin')"
+                     @mouseleave="onLeave()"
+                     class="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-300 rounded-md shadow-lg transition-all z-50">
+                    <a href="/admin" class="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">Painel Admin</a>
+                    <a href="/admin/ramais" class="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">Lista de Ramais</a>
+                    <a href="/admin/acesso-rapido" class="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">Gerenciar Acesso Rápido</a>
+                    <a href="/admin/acesso-rapido/preview" class="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">Preview Acesso Rápido</a>
+                    <hr class="border-gray-200 my-1">
+                    <a href="#" class="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">Usuários</a>
+                    <a href="#" class="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">Grupos</a>
+                </div>
+            </div>
+            {%endif%}
 
         </div>
 
