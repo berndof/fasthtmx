@@ -15,9 +15,12 @@ def compute_favicon_url(href: str, icon_url: str | None = None) -> str | None:
     if icon_url:
         return icon_url
     try:
-        domain = urlparse(href).netloc
+        if not href.startswith(("http://", "https://")):
+            href = f"https://{href}"
+        parsed = urlparse(href)
+        domain = parsed.netloc
         if domain and "." in domain:
-            return f"https://www.google.com/s2/favicons?domain={domain}&sz=64"
+            return f"http://{domain}/favicon.ico"
     except Exception:
         pass
     return None

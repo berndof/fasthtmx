@@ -15,9 +15,12 @@ def compute_favicon_url(href: str, icon_url: str | None = None) -> str | None:
     if icon_url:
         return icon_url
     try:
-        domain = urlparse(href).netloc
+        if not href.startswith(("http://", "https://")):
+            href = f"https://{href}"
+        parsed = urlparse(href)
+        domain = parsed.netloc
         if domain and "." in domain:
-            return f"https://www.google.com/s2/favicons?domain={domain}&sz=64"
+            return f"http://{domain}/favicon.ico"
     except Exception:
         pass
     return None
@@ -55,13 +58,12 @@ class QuickAccessAdminRouter(CustomRouter):
         name: str = Form(...),
         abbr: str = Form(...),
         href: str = Form("#"),
-        bg_class: str = Form("bg-black/10"),
-        text_class: str = Form("text-black"),
         icon_url: str = Form(""),
-        is_external: bool = Form(False),
         ordem: int = Form(0),
         is_active: bool = Form(False),
     ):
+        if href and not href.startswith(("http://", "https://")):
+            href = f"https://{href}"
         uow = request.scope.get("uow")
         db = await uow.get_db_session()
 
@@ -69,10 +71,10 @@ class QuickAccessAdminRouter(CustomRouter):
             name=name,
             abbr=abbr,
             href=href,
-            bg_class=bg_class,
-            text_class=text_class,
+            bg_class="bg-gray-100",
+            text_class="text-gray-600",
             icon_url=icon_url or None,
-            is_external=is_external,
+            is_external=True,
             ordem=ordem,
             is_active=is_active,
         )
@@ -136,13 +138,12 @@ class QuickAccessAdminRouter(CustomRouter):
         name: str = Form(...),
         abbr: str = Form(...),
         href: str = Form("#"),
-        bg_class: str = Form("bg-black/10"),
-        text_class: str = Form("text-black"),
         icon_url: str = Form(""),
-        is_external: bool = Form(False),
         ordem: int = Form(0),
         is_active: bool = Form(False),
     ):
+        if href and not href.startswith(("http://", "https://")):
+            href = f"https://{href}"
         uow = request.scope.get("uow")
         db = await uow.get_db_session()
 
@@ -151,10 +152,10 @@ class QuickAccessAdminRouter(CustomRouter):
             item.name = name
             item.abbr = abbr
             item.href = href
-            item.bg_class = bg_class
-            item.text_class = text_class
+            item.bg_class = "bg-gray-100"
+            item.text_class = "text-gray-600"
             item.icon_url = icon_url or None
-            item.is_external = is_external
+            item.is_external = True
             item.ordem = ordem
             item.is_active = is_active
             await uow.commit()

@@ -1,33 +1,74 @@
-<section x-data="linksExternosPanel()">
+
+ <section>
     <h2 class="text-xl font-semibold mb-4 flex items-center text-gray-800 gap-3">
         <i data-lucide="external-link" class="text-blue-500"></i>
-        Links Úteis
+        Acesso Rápido
     </h2>
 
-    <div class="relative border border-outline rounded-2xl overflow-hidden scroll-hint">
-        <div class="grid grid-cols-4 grid-rows-[auto_auto] grid-flow-col gap-4 p-5 overflow-x-auto thin-scrollbar">
-            <template x-for="item in items" :key="item.id">
-                <a :href="item.href"
+    <!--<div class="relative overflow-hidden">
+        <div class="grid grid-cols-4 grid-rows-[auto_auto] grid-flow-col p-5 gap-6 overflow-x-auto thin-scrollbar">
+            {% for item in quick_access_items %}
+                <a href="{{ item.href }}"
                    target="_blank" rel="noopener noreferrer"
-                   class="flex flex-col items-center gap-2 no-underline group">
-                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden shadow-[0_4px_10px_-2px_rgba(0,0,0,0.08)] group-hover:shadow-[0_6px_16px_-4px_rgba(0,0,0,0.15)] group-hover:-translate-y-0.5 transition-all duration-200"
-                         :class="item.bgClass">
-                        <img :src="item.favicon_url"
-                             @error="$el.style.display='none'; $el.nextElementSibling.style.display='flex'"
-                             class="w-8 h-8 object-contain"
-                             alt="">
-                        <span class="hidden w-full h-full items-center justify-center text-lg font-bold"
-                              :class="item.textClass" x-text="item.abbr"></span>
-                    </div>
-                    <span class="text-xs font-medium text-gray-700 text-center leading-tight px-1" x-text="item.name"></span>
-                </a>
-            </template>
-        </div>
-    </div>
+                   class="flex flex-col items-center no-underline group">
 
-    <script>
-        function linksExternosPanel() {
-            return { items: {{ quick_access_items | tojson }} }
-        }
-    </script>
+
+                    <div class="border border-outline/50 mb-4 w-28 h-28 rounded-2xl flex items-center justify-center overflow-hidden {# shadow-[0_0_15px_rgba(0,0,0,0.06)] #}  shadow-[0_10px_012px_rgba(0,0,0,0.08)] group-hover:shadow-[0_13px_15px_rgba(0,0,0,0.14)] group-hover:-translate-y-1 transition-all duration-300 bg-linear-to-b  from-white to-gray-100/80">
+
+                        {% if item.favicon_url %}
+                            {# Se a imagem falhar ao carregar, o JS puro esconde a tag <img> e exibe o fallback #}
+                            <img src="{{ item.favicon_url }}"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+                                 class="w-8 h-8 object-contain group-hover:scale-120 transition-all duration-300"
+                                 alt="Ícone de {{ item.name }}">
+                            <span class="hidden w-full h-full items-center justify-center text-lg font-bold text-gray-500 ">
+                                {{ item.abbr | default(item.name[:2] | upper) }}
+                            </span>
+                        {% else %}
+                            {# Se não vier URL do backend, renderiza direto um ícone do Lucide #}
+                            <i data-lucide="{% if item.icon_cls %}{{ item.icon_cls }}{% else %}link{% endif %}" class="w-8 h-8 text-gray-400"></i>
+                        {% endif %}
+                    </div>
+
+                    {# Hover no texto: adicionado group-hover:text-blue-500 e group-hover:scale-105 #}
+                    <span class="text-sm font-bold text-gray-700 text-center leading-tight px-1 transition-all duration-300 group-hover:text-blue-500 group-hover:text-shadow-sm text-shadow-gray-300/30 group-hover:-translate-y-1">
+                        {{ item.name }}
+                    </span>
+                </a>
+            {% endfor %}
+        </div>
+    </div>-->
+
+    <div class="relative overflow-hidden">
+    <div class="grid grid-cols-4 grid-rows-[auto_auto] grid-flow-col p-5 gap-6 overflow-x-auto thin-scrollbar">
+        {% for item in quick_access_items %}
+            <a href="{{ item.href }}"
+               target="_blank" rel="noopener noreferrer"
+               class="flex flex-col items-center no-underline group">
+
+                {# Corrigido o erro de digitação (012px -> 12px) e ajustado para sombras mais nítidas #}
+                <div class="border border-gray-200/60 mb-4 w-28 h-28 rounded-2xl flex items-center justify-center overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.05)] group-hover:shadow-[0_12px_20px_rgba(0,0,0,0.10)] group-hover:-translate-y-1 transition-all duration-300 bg-linear-to-b from-surface to-surface-raised">
+
+                    {% if item.favicon_url %}
+                        <img src="{{ item.favicon_url }}"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+                             class="w-8 h-8 object-contain group-hover:scale-110 transition-transform duration-300"
+                             alt="Ícone de {{ item.name }}">
+                        <span class="hidden w-full h-full items-center justify-center text-lg font-bold text-gray-500">
+                            {{ item.abbr | default(item.name[:2] | upper) }}
+                        </span>
+                    {% else %}
+                        <i data-lucide="{% if item.icon_cls %}{{ item.icon_cls }}{% else %}link{% endif %}" class="w-8 h-8 text-gray-400 group-hover:scale-110 transition-transform duration-300"></i>
+                    {% endif %}
+                </div>
+
+                {# TEXTO: Removidas as classes de text-shadow para acabar com o borrão.
+                   Adicionado um azul levemente mais forte (blue-600) para maior nitidez #}
+                <span class="text-sm font-bold text-gray-700 text-center leading-tight px-1 transition-all duration-300 group-hover:text-blue-600 group-hover:-translate-y-0.5">
+                    {{ item.name }}
+                </span>
+            </a>
+        {% endfor %}
+    </div>
+</div>
 </section>
