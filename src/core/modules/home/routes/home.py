@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from fastapi import Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy import select
@@ -7,6 +9,18 @@ from core.router.methods import get
 from core.context import request_context
 from core.settings import GUEST_SESSIONS_ENABLED
 from core.modules.home.models.quick_access import QuickAccessItem
+
+
+def compute_favicon_url(href: str, icon_url: str | None = None) -> str | None:
+    if icon_url:
+        return icon_url
+    try:
+        domain = urlparse(href).netloc
+        if domain and "." in domain:
+            return f"https://www.google.com/s2/favicons?domain={domain}&sz=64"
+    except Exception:
+        pass
+    return None
 
 
 class HomeRouter(CustomRouter):
@@ -51,6 +65,7 @@ class HomeRouter(CustomRouter):
                 "bgClass": i.bg_class,
                 "textClass": i.text_class,
                 "is_special": i.is_special,
+                "favicon_url": compute_favicon_url(i.href, i.icon_url),
             }
             for i in items
         ]

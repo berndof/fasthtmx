@@ -142,13 +142,13 @@ async def seed_ramais():
 
 
 QUICK_ACCESS_DATA = [
-    {"name": "Gestão de Pessoas", "abbr": "RH", "href": "#", "bg_class": "bg-black/10", "text_class": "text-black", "ordem": 0},
-    {"name": "Financeiro", "abbr": "$", "href": "#", "bg_class": "bg-sky-500/10", "text_class": "text-sky-500", "ordem": 1},
-    {"name": "TI & Suporte", "abbr": "TI", "href": "#", "bg_class": "bg-green-500/10", "text_class": "text-green-500", "ordem": 2},
-    {"name": "Marketing", "abbr": "MK", "href": "#", "bg_class": "bg-amber-500/10", "text_class": "text-amber-500", "ordem": 3},
-    {"name": "Jurídico", "abbr": "JD", "href": "#", "bg_class": "bg-red-500/10", "text_class": "text-red-500", "ordem": 4},
-    {"name": "Compras", "abbr": "CM", "href": "#", "bg_class": "bg-black/10", "text_class": "text-black", "ordem": 5},
-    {"name": "Logística", "abbr": "LG", "href": "#", "bg_class": "bg-sky-500/10", "text_class": "text-sky-500", "ordem": 6},
+    {"name": "Sistema RH", "abbr": "RH", "href": "https://exemplo.com/rh", "bg_class": "bg-black/10", "text_class": "text-black", "ordem": 0, "is_external": True},
+    {"name": "Portal Financeiro", "abbr": "$", "href": "https://exemplo.com/financeiro", "bg_class": "bg-sky-500/10", "text_class": "text-sky-500", "ordem": 1, "is_external": True},
+    {"name": "Suporte TI", "abbr": "TI", "href": "https://exemplo.com/ti", "bg_class": "bg-green-500/10", "text_class": "text-green-500", "ordem": 2, "is_external": True},
+    {"name": "Marketing Digital", "abbr": "MK", "href": "https://exemplo.com/marketing", "bg_class": "bg-amber-500/10", "text_class": "text-amber-500", "ordem": 3, "is_external": True},
+    {"name": "Intranet", "abbr": "IN", "href": "/intranet", "bg_class": "bg-red-500/10", "text_class": "text-red-500", "ordem": 4},
+    {"name": "Webmail", "abbr": "WM", "href": "https://webmail.exemplo.com", "bg_class": "bg-black/10", "text_class": "text-black", "ordem": 5, "is_external": True},
+    {"name": "BI Relatórios", "abbr": "BI", "href": "https://bi.exemplo.com", "bg_class": "bg-sky-500/10", "text_class": "text-sky-500", "ordem": 6, "is_external": True},
     {"name": "Mais Serviços", "abbr": "+", "href": "#", "bg_class": "bg-green-500/10", "text_class": "text-green-500", "ordem": 7, "is_special": True},
 ]
 

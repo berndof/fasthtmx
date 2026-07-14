@@ -1,5 +1,6 @@
 from uuid import uuid4, UUID
 
+from typing import Optional
 from sqlalchemy import String, Integer, Boolean, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -19,4 +20,6 @@ class QuickAccessItem(BaseModel):
     text_class: Mapped[str] = mapped_column(String(100), nullable=False, default="text-black")
     ordem: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     is_special: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    icon_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True, default=None)
+    is_external: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
