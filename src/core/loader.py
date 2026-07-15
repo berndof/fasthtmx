@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.middlewares import ProcessResponseTimeMiddleware
 from core.middlewares import UowMiddleware
 from core.middlewares import SessionMiddleware
+from core.middlewares import RamaisMiddleware
 
 T = TypeVar("T", bound="DeclarativeBase")
 
@@ -171,6 +172,7 @@ class Registry(metaclass=Singleton):
 
         app.add_middleware(ProcessResponseTimeMiddleware)
         app.add_middleware(SessionMiddleware)
+        app.add_middleware(RamaisMiddleware)
         app.add_middleware(UowMiddleware)
 
         return

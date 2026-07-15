@@ -24,15 +24,9 @@
             <script>
                 function ramaisFavoritos() {
                     return {
-                        todos: [],
+                        todos: {{ regioes_json | safe }},
                         favorites: JSON.parse(localStorage.getItem('ramalFavorites') || '[]'),
-                        async init() {
-                            try {
-                                const resp = await fetch('/api/ramais');
-                                this.todos = await resp.json();
-                            } catch (e) {
-                                console.error('Erro ao carregar ramais favoritos:', e);
-                            }
+                        init() {
                             window.addEventListener('ramal-fav-change', (e) => {
                                 this.favorites = e.detail.favorites;
                             });

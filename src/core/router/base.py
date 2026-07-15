@@ -78,6 +78,8 @@ class CustomRouter:
             "session_type": session_type,
             "groups": groups,
             "ldap_enabled": LDAP_ENABLED,
+            "regioes": request.scope.get("regioes", []),
+            "regioes_json": request.scope.get("regioes_json", "[]"),
         }
         if extra_context:
             context.update(extra_context)
