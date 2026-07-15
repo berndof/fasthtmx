@@ -1,0 +1,9 @@
+{% if security_tips %}
+{% set first_tip = security_tips[0] %}
+{% set has_more = security_tips|length > 1 %}
+{% set next_offset = 1 if has_more else 0 %}
+{% set interval = security_tip_config.interval_seconds if security_tip_config else 8 %}
+{% set title = first_tip.title %}
+{% set content = first_tip.content %}
+{% include "componentes/_security_tip_card.html" %}
+{% endif %}

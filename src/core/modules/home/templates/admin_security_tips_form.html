@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>{{ "Editar" if tip else "Nova" }} Dica de Segurança — Admin — Torres SCC</title>
+{% endblock title %}
+
+{% block content %}
+<div class="flex-1 p-4 lg:p-6">
+    <div class="max-w-lg mx-auto">
+
+        <div class="mb-6">
+            <a href="/admin/dicas-seguranca" class="text-sm text-gray-600 hover:text-gray-900">&larr; Voltar</a>
+            <h1 class="text-2xl font-bold text-gray-900 mt-2">
+                {{ "Editar" if tip else "Nova" }} Dica de Segurança
+            </h1>
+        </div>
+
+        <form method="post" class="space-y-4">
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                <input type="text" name="title" id="title" required maxlength="150"
+                       value="{{ tip.title if tip else '' }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black">
+            </div>
+
+            <div>
+                <label for="content" class="block text-sm font-medium text-gray-700 mb-1">Conteúdo</label>
+                <textarea name="content" id="content" required rows="4"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black">{{ tip.content if tip else '' }}</textarea>
+                <p class="text-xs text-gray-500 mt-1">Texto da dica exibido no card do carrossel.</p>
+            </div>
+
+            <div>
+                <label for="ordem" class="block text-sm font-medium text-gray-700 mb-1">Ordem</label>
+                <input type="number" name="ordem" id="ordem" min="0"
+                       value="{{ tip.ordem if tip else 0 }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black">
+            </div>
+
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="is_active" id="is_active" value="true"
+                       {% if tip is none or tip.is_active %}checked{% endif %}
+                       class="w-4 h-4 border-gray-300 rounded text-black focus:ring-black/20">
+                <label for="is_active" class="text-sm font-medium text-gray-700">Ativo</label>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
+                    {{ "Salvar" if tip else "Criar" }}
+                </button>
+                <a href="/admin/dicas-seguranca"
+                   class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock content %}

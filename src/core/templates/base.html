@@ -51,7 +51,7 @@ const topnavbar = () => ({
     isMouseOverMenu: false,
 
     favorites: JSON.parse(localStorage.getItem('ramalFavorites') || '[]'),
-    openRegions: {{ regioes | map(attribute='id') | list | tojson }},
+    openRegions: {{ regioes | map(attribute='id') | map('string') | list | tojson }},
 
     init() {
         window.addEventListener('ramal-fav-change', (e) => {
@@ -68,14 +68,14 @@ const topnavbar = () => ({
         this.closeTimer = setTimeout(() => {
             if (!this.isMouseOverMenu) {
                 this.activeMenu = null;
-                this.openRegions = {{ regioes | map(attribute='id') | list | tojson }};
+                this.openRegions = {{ regioes | map(attribute='id') | map('string') | list | tojson }};
             }
         }, 200);
     },
 
     closeAll() {
         this.activeMenu = null;
-        this.openRegions = {{ regioes | map(attribute='id') | list | tojson }};
+        this.openRegions = {{ regioes | map(attribute='id') | map('string') | list | tojson }};
     },
 
     toggleRegion(id) {
@@ -327,7 +327,7 @@ registerComponent("topNavbar", topnavbar);
 
                         <div class="relative max-h-96 overflow-hidden rounded-radius">
                             <div x-ref="scrollArea" class="max-h-96 overflow-y-auto thin-scrollbar scroll-hint"
-                                 @scroll="
+                                 @scroll="/
                                      scrolledTop = $el.scrollTop > 4;
                                      scrolledBottom = $el.scrollTop + $el.clientHeight < $el.scrollHeight - 4;
                                  ">
@@ -406,6 +406,7 @@ registerComponent("topNavbar", topnavbar);
                         <a href="/admin/ramais" class="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">Lista de Ramais</a>
                         <a href="/admin/acesso-rapido" class="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">Gerenciar Acesso Rápido</a>
                         <a href="/admin/acesso-rapido/preview" class="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">Preview Acesso Rápido</a>
+                    <a href="/admin/dicas-seguranca" class="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">Dicas de Segurança</a>
                         <hr class="border-gray-200 my-1">
                         <a href="#" class="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">Usuários</a>
                         <a href="#" class="block px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">Grupos</a>

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Dicas de Segurança — Admin — Torres SCC</title>
+{% endblock title %}
+
+{% block content %}
+<div class="flex-1 p-4 lg:p-6">
+    <div class="max-w-7xl mx-auto">
+
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Dicas de Segurança</h1>
+                <p class="text-sm text-gray-600 mt-1">Gerencie as dicas exibidas no carrossel da página inicial.</p>
+            </div>
+            <a href="/admin/dicas-seguranca/novo"
+               class="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
+                + Nova Dica
+            </a>
+        </div>
+
+        <!-- Config -->
+        <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-md">
+            <h2 class="text-sm font-semibold text-amber-900 mb-3">Configurações de Exibição</h2>
+            <form method="post" action="/admin/dicas-seguranca/config" class="flex flex-wrap items-end gap-4">
+                <div>
+                    <label for="interval_seconds" class="block text-xs font-medium text-amber-800 mb-1">Intervalo (segundos)</label>
+                    <input type="number" name="interval_seconds" id="interval_seconds" min="3" max="120"
+                           value="{{ config.interval_seconds if config else 8 }}"
+                           class="w-28 px-3 py-2 border border-amber-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-500">
+                </div>
+                <div class="flex items-center gap-2 pb-2">
+                    <input type="checkbox" name="is_enabled" id="is_enabled" value="true"
+                           {% if config is none or config.is_enabled %}checked{% endif %}
+                           class="w-4 h-4 border-amber-300 rounded text-amber-600 focus:ring-amber-400/40">
+                    <label for="is_enabled" class="text-xs font-medium text-amber-800">Habilitado</label>
+                </div>
+                <button type="submit"
+                        class="px-4 py-2 text-xs font-medium text-amber-900 bg-amber-200 hover:bg-amber-300 rounded-md transition-colors">
+                    Salvar Configurações
+                </button>
+            </form>
+        </div>
+
+        {% if not tips %}
+        <div class="p-8 bg-gray-50 border border-gray-300 rounded-md text-center">
+            <p class="text-sm text-gray-600">Nenhuma dica cadastrada.</p>
+            <a href="/admin/dicas-seguranca/novo" class="mt-2 inline-block text-sm font-medium text-black hover:underline">
+                Criar primeira dica
+            </a>
+        </div>
+        {% else %}
+        <div class="bg-white border border-gray-300 rounded-md overflow-hidden">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-xs text-gray-500 uppercase bg-gray-50">
+                        <th class="px-4 py-3 font-medium">Título</th>
+                        <th class="px-4 py-3 font-medium">Conteúdo</th>
+                        <th class="px-4 py-3 font-medium">Ordem</th>
+                        <th class="px-4 py-3 font-medium">Ativo</th>
+                        <th class="px-4 py-3 font-medium w-24"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for tip in tips %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-gray-900 font-medium">{{ tip.title }}</td>
+                        <td class="px-4 py-3 text-gray-500 max-w-xs truncate">{{ tip.content }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ tip.ordem }}</td>
+                        <td class="px-4 py-3">
+                            {% if tip.is_active %}
+                            <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full">Sim</span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded-full">Não</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-right whitespace-nowrap">
+                            <a href="/admin/dicas-seguranca/{{ tip.id }}/editar"
+                               class="text-xs text-gray-600 hover:text-gray-900 underline mr-2">editar</a>
+                            <form action="/admin/dicas-seguranca/{{ tip.id }}/excluir" method="post"
+                                  onsubmit="return confirm('Excluir dica &#39;{{ tip.title }}&#39;?')"
+                                  class="inline">
+                                <button type="submit" class="text-xs text-red-500 hover:text-red-700 underline">excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock content %}

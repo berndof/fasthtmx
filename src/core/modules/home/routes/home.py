@@ -9,6 +9,8 @@ from core.router.methods import get
 from core.context import request_context
 from core.settings import GUEST_SESSIONS_ENABLED
 from core.modules.home.models.quick_access import QuickAccessItem
+from core.modules.home.models.security_tip import SecurityTip
+from core.modules.home.models.security_tip_config import SecurityTipConfig
 
 
 def compute_favicon_url(href: str, icon_url: str | None = None) -> str | None:
@@ -73,8 +75,30 @@ class HomeRouter(CustomRouter):
             for i in items
         ]
 
+        def truncate(text: str, max_len: int = 120) -> str:
+            if len(text) <= max_len:
+                return text
+            return text[:max_len].rsplit(" ", 1)[0] + "..."
+
+        tips_result = await db.execute(
+            select(SecurityTip)
+            .where(SecurityTip.is_active == True)
+            .order_by(SecurityTip.ordem)
+        )
+        tips = tips_result.scalars().all()
+        tips_data = [
+            {"title": t.title, "content": truncate(t.content)} for t in tips
+        ]
+
+        config_result = await db.execute(select(SecurityTipConfig))
+        tip_config = config_result.scalars().first()
+
         return self.render_template(
-            request, "home.html", extra_context={"quick_access_items": items_data}
+            request, "home.html", extra_context={
+                "quick_access_items": items_data,
+                "security_tips": tips_data,
+                "security_tip_config": tip_config,
+            }
         )
 
     @get("/nada/{name}")
