@@ -47,11 +47,11 @@
 
 const topnavbar = () => ({
     activeMenu: null,
-    //activeMenu: "ramais",
     closeTimer: null,
     isMouseOverMenu: false,
 
     favorites: JSON.parse(localStorage.getItem('ramalFavorites') || '[]'),
+    openRegions: {{ regioes | map(attribute='id') | list | tojson }},
 
     init() {
         window.addEventListener('ramal-fav-change', (e) => {
@@ -68,12 +68,22 @@ const topnavbar = () => ({
         this.closeTimer = setTimeout(() => {
             if (!this.isMouseOverMenu) {
                 this.activeMenu = null;
+                this.openRegions = {{ regioes | map(attribute='id') | list | tojson }};
             }
         }, 200);
     },
 
     closeAll() {
         this.activeMenu = null;
+        this.openRegions = {{ regioes | map(attribute='id') | list | tojson }};
+    },
+
+    toggleRegion(id) {
+        if (this.openRegions.includes(id)) {
+            this.openRegions = this.openRegions.filter(r => r !== id);
+        } else {
+            this.openRegions.push(id);
+        }
     },
 
     toggle(menu) {
@@ -327,8 +337,17 @@ registerComponent("topNavbar", topnavbar);
                                 {% endif %}
                                 {% for regiao in regioes %}
                                     <div>
-                                        <div class="px-4 text-primary py-2 text-xs font-semibold = uppercase tracking-wider bg-outline/50">{{ regiao.nome }}</div>
+                                        <button @click="toggleRegion('{{ regiao.id }}')"
+                                            class="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wider bg-outline/50 text-primary hover:bg-outline/70 transition-colors cursor-pointer">
+                                            <span>{{ regiao.nome }}</span>
+                                            <svg class="w-3.5 h-3.5 transition-transform duration-200"
+                                                :class="openRegions.includes('{{ regiao.id }}') ? 'rotate-180' : 'rotate-0'"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="m6 9 6 6 6-6"/>
+                                            </svg>
+                                        </button>
 
+                                        <div x-show="openRegions.includes('{{ regiao.id }}')">
                                         {% for ramal in regiao.ramais %}
 
                                             <div class="flex items-center justify-between px-4 py-2 transition-colors duration-100 {{ 'bg-white dark:bg-gray-800' if loop.index0 % 2 == 0 else 'bg-surface-alt dark:bg-gray-300/50' }} hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -347,6 +366,7 @@ registerComponent("topNavbar", topnavbar);
 
                                             </div>
                                         {% endfor %}
+                                        </div>
 
                                     </div>
                                 {% endfor %}
