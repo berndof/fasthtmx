@@ -118,7 +118,7 @@ body {
 
     .top-nav-btn {
         @apply
-        flex items-center gap-1.5 px-2 py-1 text-[13px] font-medium hover:bg-gray-50 transition-all cursor-default rounded-radius hover:text-on-surface
+        flex items-center gap-1.5 px-2 py-1 text-[13px] font-medium hover:bg-gray-50  cursor-default rounded-radius hover:text-on-surface duration-200 transition-colors
 
         ;
     }
@@ -136,4 +136,20 @@ body {
 
 
 
+}
+
+.dropdown-container {
+    @apply
+        bg-surface-alt border border-outline rounded-radius shadow-lg transition-all z-50 duration-200 absolute mt-1
+    ;
+}
+
+.dropdown-item {
+    @apply
+        block  p-2 text-sm text-gray-600 hover:bg-on-surface/10 hover:text-gray-900
+        border-b border-outline
+        first:rounded-t-md
+        last:rounded-b-md last:border-b-0
+        truncate
+    ;
 }
