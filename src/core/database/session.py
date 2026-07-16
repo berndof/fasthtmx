@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from collections.abc import AsyncGenerator
-from sqlalchemy.pool import AsyncAdaptedQueuePool
+from sqlalchemy.pool import AsyncAdaptedQueuePool, NullPool
 from contextlib import asynccontextmanager
 
 
@@ -15,25 +15,38 @@ class DBSessionManager:
         self.engine: AsyncEngine | None = None
         self.session_factory: async_sessionmaker[AsyncSession] | None = None
 
+    @property
+    def _is_sqlite(self) -> bool:
+        return self.db_url.startswith("sqlite")
+
     def start(self) -> None:
-        self.engine = create_async_engine(
-            self.db_url,
-            poolclass=AsyncAdaptedQueuePool,
-            # pool_size=settings.POOL_SIZE,
-            # max_overflow=settings.MAX_OVERFLOW,
-            pool_pre_ping=True,
-            # pool_recycle=settings.POOL_RECYCLE,
-            # echo=True,
-        )
+        if self._is_sqlite:
+            self.engine = create_async_engine(
+                self.db_url,
+                poolclass=NullPool,
+                connect_args={"check_same_thread": False},
+            )
+        else:
+            self.engine = create_async_engine(
+                self.db_url,
+                poolclass=AsyncAdaptedQueuePool,
+                pool_pre_ping=True,
+            )
 
         self.session_factory = async_sessionmaker[AsyncSession](
             self.engine,
-            expire_on_commit=False,  # autoflush=False
+            expire_on_commit=False,
         )
 
     async def stop(self) -> None:
         if self.engine:
             await self.engine.dispose()
+
+    async def create_tables(self) -> None:
+        from core.models import BaseModel
+
+        async with self.engine.begin() as conn:
+            await conn.run_sync(BaseModel.metadata.create_all)
 
     @asynccontextmanager
     async def get_session(self) -> AsyncGenerator[AsyncSession]:
@@ -44,7 +57,6 @@ class DBSessionManager:
             yield session
 
 
-from core.settings import POSTGRES_DB_URL, SQLITE_DB_URL
+from core.settings import DATABASE_URL
 
-db = DBSessionManager(POSTGRES_DB_URL)
-# sqlite_manager = DBSessionManager(SQLITE_DB_URL)
+db = DBSessionManager(DATABASE_URL)

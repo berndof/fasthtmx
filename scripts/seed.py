@@ -10,9 +10,14 @@ from core.database import db
 from core.unit_of_work import UnitOfWork
 from core.modules.auth.models.user import User
 from core.modules.auth.models.group import Group
+from core.modules.auth.models.favorite import UserFavoriteRamal
+from core.modules.auth.models.session import UserSession
+from core.modules.auth.models.ad_mapping import AdGroupMapping
 from core.modules.auth.utils import hash_password
 from core.modules.ramais.models.ramal import Regiao, Ramal
 from core.modules.home.models.quick_access import QuickAccessItem
+from core.modules.home.models.security_tip import SecurityTip
+from core.modules.home.models.security_tip_config import SecurityTipConfig
 from sqlalchemy import select
 
 logging.config.dictConfig(LOG_CONFIG)
@@ -47,6 +52,7 @@ async def create_groups(uow_db) -> dict[str, Group]:
 
 async def create_superuser():
     db.start()
+    await db.create_tables()
     uow = UnitOfWork()
     uow_db = await uow.get_db_session()
 
@@ -67,6 +73,7 @@ async def create_superuser():
         await uow_db.flush()
         logger.info("Superuser criado: %s / %s", user.email, SUPERUSER_DATA["password"])
 
+    await uow_db.run_sync(lambda _: user.groups)
     user.groups = list(groups.values())
     await uow.commit()
     logger.info(
@@ -110,6 +117,7 @@ RAMAS_DATA = [
 
 async def seed_ramais():
     db.start()
+    await db.create_tables()
     uow = UnitOfWork()
     uow_db = await uow.get_db_session()
 
@@ -155,6 +163,7 @@ QUICK_ACCESS_DATA = [
 
 async def seed_quick_access():
     db.start()
+    await db.create_tables()
     uow = UnitOfWork()
     uow_db = await uow.get_db_session()
 

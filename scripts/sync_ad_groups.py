@@ -81,6 +81,7 @@ async def main():
 
     # ── Sincronizar com banco ───────────────────────────────────
     db.start()
+    await db.create_tables()
     uow = UnitOfWork()
     db_session = await uow.get_db_session()
 

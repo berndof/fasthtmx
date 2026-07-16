@@ -38,9 +38,9 @@ target_metadata = BaseModel.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-from core.settings import POSTGRES_DB_URL
+from core.settings import DATABASE_URL
 
-config.set_main_option("sqlalchemy.url", POSTGRES_DB_URL)
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 
 def run_migrations_offline() -> None:

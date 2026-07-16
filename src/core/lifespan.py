@@ -12,6 +12,9 @@ async def lifespan(app: FastAPI):
 
     registry.load_modules(app)
 
+    if db._is_sqlite:
+        await db.create_tables()
+
     try:
         yield
     finally:
