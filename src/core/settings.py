@@ -24,7 +24,8 @@ POSTGRES_PORT = int(os.environ.get("POSTGRES_PORT", "5432"))
 POSTGRES_HOST = os.environ.get("POSTGRES_HOST", "localhost")
 POSTGRES_DB_URL = f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DATABASE}"
 
-DATABASE_URL = os.environ.get("DATABASE_URL") or POSTGRES_DB_URL
+USE_SQLITE = os.environ.get("USE_SQLITE", "").lower() == "true"
+DATABASE_URL = SQLITE_DB_URL if USE_SQLITE else (os.environ.get("DATABASE_URL") or POSTGRES_DB_URL)
 
 LDAP_SERVER = os.environ.get("LDAP_SERVER")
 LDAP_BASE_DN = os.environ.get("LDAP_BASE_DN")
