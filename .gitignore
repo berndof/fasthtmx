@@ -6,3 +6,4 @@
 node_modules
 oldexamples/
 *.egg-info
+AGENTS.md

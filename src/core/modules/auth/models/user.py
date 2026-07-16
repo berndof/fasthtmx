@@ -30,3 +30,7 @@ class User(BaseModel):
     groups: Mapped[list["Group"]] = relationship(
         secondary="user_group", back_populates="users", lazy="selectin"
     )
+
+    favorites: Mapped[list["UserFavoriteRamal"]] = relationship(
+        back_populates="user", lazy="selectin"
+    )

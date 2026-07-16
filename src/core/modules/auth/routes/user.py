@@ -1,29 +1,102 @@
-from fastapi import APIRouter, Request
-from core.modules.auth.services.user import UserService
-from core.modules.auth.schemas.user import UserIn
+from uuid import UUID
 
-# router = APIRouter(prefix="/users", route_class=ContextRoute)
-# registry.register_router(router)
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from starlette.responses import RedirectResponse
+from sqlalchemy import select, delete
 
-
-""" @router.get("/create")
-def get_create_user(
-    request: Request,
-):
-    return {"Hello", "World"}
+from core.router.base import CustomRouter
+from core.router.methods import get, post
+from core.context import request_context
+from core.modules.auth.models.favorite import UserFavoriteRamal
 
 
-@router.post("/create")
-def post_create_user(request: Request): """
+class ProfileRouter(CustomRouter):
+    prefix = ""
+    template_path = "../templates"
 
-# service = UserService(request, in_schema=UserIn)
+    @get("/perfil")
+    async def get_perfil(self, request: Request):
+        ctx = request_context.get({})
+        user = ctx.get("user")
 
-# extrair oque tem de context na request com um pop (remover da request)
+        if not user:
+            return RedirectResponse(url="/login", status_code=302)
 
-# mistrurar o contexto da request com o contexto que vai para o template
+        uow = request.scope.get("uow")
+        db = await uow.get_db_session()
 
-# response = await service.create().to_htmx("template para o block")
+        result = await db.execute(
+            select(UserFavoriteRamal)
+            .where(UserFavoriteRamal.user_id == user.id)
+            .order_by(UserFavoriteRamal.ordem)
+        )
+        db_favorites = result.scalars().all()
 
-# push notificaçãõ para user
+        return self.render_template(
+            request,
+            "perfil.html",
+            extra_context={
+                "db_favorites": [
+                    {"id": str(f.ramal_id), "ordem": f.ordem}
+                    for f in db_favorites
+                ],
+            },
+        )
 
-# monta reposta aqui é´so um 200 e um redirect
+    @post("/api/favoritos/salvar")
+    async def salvar_favoritos(self, request: Request):
+        ctx = request_context.get({})
+        user = ctx.get("user")
+
+        if not user:
+            return JSONResponse({"error": "Não autenticado"}, status_code=401)
+
+        body = await request.json()
+        ramal_ids: list[str] = body.get("ramal_ids", [])
+        order: list[str] = body.get("order", [])
+
+        uow = request.scope.get("uow")
+        db = await uow.get_db_session()
+
+        await db.execute(
+            delete(UserFavoriteRamal).where(
+                UserFavoriteRamal.user_id == user.id
+            )
+        )
+
+        for i, rid in enumerate(order if order else ramal_ids):
+            if rid in ramal_ids:
+                fav = UserFavoriteRamal(
+                    user_id=user.id,
+                    ramal_id=UUID(rid),
+                    ordem=i,
+                )
+                db.add(fav)
+
+        await uow.commit()
+
+        return JSONResponse({"status": "ok", "count": len(ramal_ids)})
+
+    @get("/api/favoritos")
+    async def get_favoritos(self, request: Request):
+        ctx = request_context.get({})
+        user = ctx.get("user")
+
+        if not user:
+            return JSONResponse({"error": "Não autenticado"}, status_code=401)
+
+        uow = request.scope.get("uow")
+        db = await uow.get_db_session()
+
+        result = await db.execute(
+            select(UserFavoriteRamal)
+            .where(UserFavoriteRamal.user_id == user.id)
+            .order_by(UserFavoriteRamal.ordem)
+        )
+        db_favorites = result.scalars().all()
+
+        return JSONResponse({
+            "ramal_ids": [str(f.ramal_id) for f in db_favorites],
+            "order": [str(f.ramal_id) for f in db_favorites],
+        })
