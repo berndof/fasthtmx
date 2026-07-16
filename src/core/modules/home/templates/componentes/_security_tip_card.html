@@ -1,24 +1,5 @@
-<div id="security-tips"
-     {% if has_more %}
-     hx-get="/api/security-tips/next?offset={{ next_offset }}"
-     hx-trigger="every {{ interval }}s"
-     hx-target="#security-tips"
-     hx-swap="outerHTML transition:true"
-     {% endif %}
-     class="bg-linear-to-br from-amber-500 to-amber-700 p-6 rounded-xl shadow-md text-white relative overflow-hidden h-200px flex flex-col">
-
-    <div class="absolute top-0 right-0 -mt-4 -mr-4 opacity-10">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-32 h-32"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    </div>
-
-    <div class="relative z-10 flex flex-col flex-1 gap-2">
-        <h2 class="text-xl font-bold ">Dica de Seguran&ccedil;a</h2>
-        <div class="flex-1 flex items-center">
-            <div class="bg-white/10 p-4 rounded-lg backdrop-blur-sm w-full">
-                <h3 class="text-sm font-semibold text-amber-50">{{ title }}</h3>
-                <p class="text-xs text-amber-100 mt-1.5 leading-relaxed">{{ content }}</p>
-            </div>
-        </div>
-    </div>
-
+<input type="hidden" id="tip-offset" name="offset" value="{{ next_offset }}">
+<div class="bg-white/10 p-3 rounded-lg backdrop-blur-sm w-full">
+    <h3 class="text-sm font-semibold text-amber-50">{{ title }}</h3>
+    <p class="text-xs text-amber-100 mt-1.5 leading-relaxed">{{ content }}</p>
 </div>

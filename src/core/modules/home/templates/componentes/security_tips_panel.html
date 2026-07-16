@@ -1,9 +1,27 @@
 {% if security_tips %}
-{% set first_tip = security_tips[0] %}
-{% set has_more = security_tips|length > 1 %}
-{% set next_offset = 1 if has_more else 0 %}
+{% set total = security_tips|length %}
+{% set has_more = total > 1 %}
 {% set interval = security_tip_config.interval_seconds if security_tip_config else 8 %}
-{% set title = first_tip.title %}
-{% set content = first_tip.content %}
-{% include "componentes/_security_tip_card.html" %}
+{% set first_tip = security_tips[0] %}
+<div id="security-tips"
+     {% if has_more %}
+     hx-get="/api/security-tips/next"
+     hx-trigger="every {{ interval }}s"
+     hx-target="#security-tips-inner"
+     hx-swap="innerHTML transition:true"
+     hx-include="#tip-offset"
+     {% endif %}
+     class="bg-linear-to-br from-amber-500 to-amber-700 p-5 rounded-xl shadow-md text-white relative overflow-hidden h-[220px] flex flex-col">
+    <div class="absolute top-0 right-0 -mt-4 -mr-4 opacity-10">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-32 h-32"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div class="relative z-10 flex flex-col flex-1 gap-2">
+        <h2 class="text-lg font-bold">Dica de Seguran&ccedil;a</h2>
+        <div id="security-tips-inner" class="flex-1 flex items-center">
+            {% with current=1, next_offset=1, total=total, title=first_tip.title, content=first_tip.content %}
+            {% include "componentes/_security_tip_card.html" %}
+            {% endwith %}
+        </div>
+    </div>
+</div>
 {% endif %}

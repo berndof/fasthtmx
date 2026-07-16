@@ -7,6 +7,12 @@ from core.modules.home.models.security_tip import SecurityTip
 from core.modules.home.models.security_tip_config import SecurityTipConfig
 
 
+def _truncate(text: str, max_len: int = 180) -> str:
+    if len(text) <= max_len:
+        return text
+    return text[:max_len].rsplit(" ", 1)[0] + "..."
+
+
 class SecurityTipsApiRouter(CustomRouter):
     prefix = "/api"
     template_path = "../templates"
@@ -26,19 +32,9 @@ class SecurityTipsApiRouter(CustomRouter):
             .order_by(SecurityTip.ordem)
         )
         tips = result.scalars().all()
+        total = len(tips)
 
-        config_result = await db.execute(select(SecurityTipConfig))
-        tip_config = config_result.scalars().first()
-        interval = tip_config.interval_seconds if tip_config else 8
-
-        def truncate(text: str, max_len: int = 120) -> str:
-            if len(text) <= max_len:
-                return text
-            return text[:max_len].rsplit(" ", 1)[0] + "..."
-
-        has_more = len(tips) > 1
-
-        if not tips:
+        if not total:
             return self.Template.TemplateResponse(
                 "componentes/_security_tip_card.html",
                 {
@@ -46,23 +42,22 @@ class SecurityTipsApiRouter(CustomRouter):
                     "title": "Sem dicas no momento",
                     "content": "Em breve teremos novidades sobre seguran\u00e7a digital.",
                     "next_offset": 0,
-                    "interval": interval,
-                    "has_more": False,
                 },
             )
 
-        idx = offset % len(tips)
+        has_more = total > 1
+        idx = offset % total
         tip = tips[idx]
-        next_offset = (idx + 1) % len(tips) if has_more else 0
+        next_offset = (idx + 1) % total if has_more else 0
 
         return self.Template.TemplateResponse(
             "componentes/_security_tip_card.html",
             {
                 "request": request,
                 "title": tip.title,
-                "content": truncate(tip.content),
+                "content": _truncate(tip.content),
+                "current": idx + 1,
+                "total": total,
                 "next_offset": next_offset,
-                "interval": interval,
-                "has_more": has_more,
             },
         )

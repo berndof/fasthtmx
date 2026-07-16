@@ -75,7 +75,7 @@ class HomeRouter(CustomRouter):
             for i in items
         ]
 
-        def truncate(text: str, max_len: int = 120) -> str:
+        def truncate(text: str, max_len: int = 180) -> str:
             if len(text) <= max_len:
                 return text
             return text[:max_len].rsplit(" ", 1)[0] + "..."
