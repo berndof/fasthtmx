@@ -7,3 +7,5 @@ node_modules
 oldexamples/
 *.egg-info
 AGENTS.md
+*.sqlite
+*/data
