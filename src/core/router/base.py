@@ -13,6 +13,7 @@ from core.settings import BASE_DIR, LDAP_ENABLED
 class CustomRouter:
     prefix: str = ""
     routes = []
+    templates_path: str = ""
 
     def __init__(self, templates_dir: str | None = None):
         self.logger = getLogger(f"app.{self.__class__.__name__.lower()}")
@@ -72,6 +73,7 @@ class CustomRouter:
         user = ctx.get("user")
         session_type = ctx.get("session_type", "guest")
         groups = ctx.get("groups", [])
+
         context = {
             "request": request,
             "user": user,

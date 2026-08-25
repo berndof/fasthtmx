@@ -34,10 +34,10 @@ class Registry(metaclass=Singleton):
         # self.sqlite_models: list[type[BaseSqliteModel]] = []
         self.middlewares: list = []
 
-    def register_router(self, router: APIRouter):
+    """ def register_router(self, router: APIRouter):
         # self.routers.append(router)
         # logger.debug(f"Router {router.prefix} registered successfully.")
-        return router
+        return router """
 
     def register_model(self, model_cls: type[T]) -> type[T]:
         # ver o subtipo do modelo, sqlite ou pg, e baseado nisso adicionar na lista correta
