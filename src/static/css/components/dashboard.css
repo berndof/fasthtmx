@@ -1,0 +1,62 @@
+@layer dashboard {
+    .dashboard-stat-card {
+        @apply
+            bg-surface border border-outline-muted rounded-radius
+            p-5 flex flex-col gap-3
+            transition-all duration-200 ease-in-out cursor-pointer
+            hover:border-outline-strong hover:shadow-md
+    }
+
+    .dashboard-section-card {
+        @apply
+        bg-surface border border-outline-muted rounded-radius
+        shadow-sm flex flex-col min-h-0 overflow-hidden
+    }
+
+    .dashboard-section-header {
+        @apply
+        flex items-center gap-2 px-5 py-3 border-b border-outline-muted
+        shrink-0
+    }
+
+    .dashboard-section-body {
+        @apply
+        flex-1 overflow-y-auto px-5 py-4
+    }
+
+    .dashboard-ativo-row {
+        @apply
+        flex items-center gap-3 p-2 -mx-2 rounded-radius
+        transition-colors duration-150 cursor-pointer
+        hover:bg-surface-alt
+    }
+
+    .dashboard-cliente-row {
+        @apply
+        flex items-center gap-3 p-2 -mx-2 rounded-radius
+        transition-colors duration-150 cursor-pointer
+        hover:bg-surface-alt
+    }
+
+    .stat-trend-up {
+        @apply text-green-500
+    }
+    .stat-trend-down {
+        @apply text-red-500
+    }
+    .stat-trend-stable {
+        @apply text-on-surface/40
+    }
+
+    .period-tab {
+        @apply
+        px-4 py-1.5 text-xs font-semibold rounded-radius
+        transition-all duration-150 ease-in-out
+        text-on-surface/50 hover:text-on-surface hover:bg-surface-alt
+    }
+    .period-tab-active {
+        @apply
+        bg-primary text-on-primary
+        shadow-sm
+    }
+}

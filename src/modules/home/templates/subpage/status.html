@@ -1,0 +1,29 @@
+<div class="p-4 flex flex-col gap-4 overflow-y-auto h-full text-sm">
+  <div class="flex items-center gap-2 border-b border-outline pb-2.5">
+    <i data-lucide="activity" class="size-4 text-primary"></i>
+    <h3 class="font-semibold text-on-surface-strong">Sessão & Diagnóstico do Core</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 text-xs">
+    <div class="p-3 rounded-radius border border-outline bg-surface-alt/40">
+      <span class="text-on-surface/50 block">Usuário autenticado</span>
+      <strong class="text-on-surface-strong text-sm">{{ user.name if user else 'Anônimo' }}</strong>
+      <span class="text-on-surface/60 block">{{ user.email if user else '' }}</span>
+    </div>
+
+    <div class="p-3 rounded-radius border border-outline bg-surface-alt/40">
+      <span class="text-on-surface/50 block">Tema SSR Ativo</span>
+      <strong class="text-on-surface-strong text-sm font-mono">{{ theme }}</strong>
+      <span class="text-on-surface/60 block">IP: {{ client_ip }}</span>
+    </div>
+  </div>
+
+  <div class="p-3 rounded-radius border border-outline bg-surface-alt/40 text-xs space-y-2">
+    <div class="font-semibold text-on-surface-strong">Atalhos Rápidos (Softnav)</div>
+    <div class="flex flex-wrap gap-2">
+      {{ soft_btn('/user/list', label='Gerenciar Usuários', icon='users', classes='px-3 py-1.5 rounded-radius border border-outline bg-surface hover:bg-surface-alt text-xs inline-flex items-center gap-1.5 cursor-pointer') }}
+      {{ soft_btn('/admin/historico', label='Histórico de Auditoria', icon='history', classes='px-3 py-1.5 rounded-radius border border-outline bg-surface hover:bg-surface-alt text-xs inline-flex items-center gap-1.5 cursor-pointer') }}
+      {{ soft_btn('/sessions', label='Sessões Ativas', icon='shield-check', classes='px-3 py-1.5 rounded-radius border border-outline bg-surface hover:bg-surface-alt text-xs inline-flex items-center gap-1.5 cursor-pointer') }}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,157 @@
+{#
+  Macros para list views (busca, cabeçalhos ordenáveis, paginação, estado vazio e ações).
+  Disponíveis globalmente ou via:
+  {% from "macros/list.html" import search_bar, sortable_th, plain_th, pagination, empty_state, footer_info, action_buttons %}
+#}
+
+{# Barra de busca reativa com debounce e preservação de sort_by/order #}
+{% macro search_bar(result, data_url, placeholder='Buscar...', target='#table-paged', indicator='#list-loading') %}
+<div id="searchbar" class="relative flex items-center w-full max-w-xs">
+  <i data-lucide="search" class="search-icon absolute left-3 size-4 text-on-surface/50 pointer-events-none"></i>
+  <span class="search-indicator htmx-indicator loading loading-spinner loading-xs text-primary absolute left-3 pointer-events-none"></span>
+  <input
+    type="search"
+    name="q"
+    value="{{ result.q if result and result.q is defined else '' }}"
+    placeholder="{{ placeholder }}"
+    hx-get="{{ data_url }}"
+    hx-trigger="input changed delay:300ms, search"
+    hx-target="{{ target }}"
+    hx-swap="innerHTML"
+    hx-indicator="{{ indicator }}"
+    hx-vals='{"sort_by":"{{ result.sort_by if result else "created_at" }}","order":"{{ result.order if result else "desc" }}"}'
+    class="w-full pl-9 pr-3 py-1.5 text-sm rounded-radius bg-surface border border-outline text-on-surface placeholder:text-on-surface-faint focus:border-primary focus:outline-none transition-colors"
+  />
+</div>
+{% endmacro %}
+
+{# Cabeçalho ordenável (th) #}
+{% macro sortable_th(key, label, result, data_url, align='left', classes='') %}
+<th scope="col"
+  class="sticky top-0 z-10 bg-surface-alt py-2.5 {{ 'text-center' if align == 'center' else 'pl-3' }} font-semibold border-r border-outline cursor-pointer hover:text-on-surface-strong/70 transition-colors shadow-[inset_0_-1px_0_0_var(--color-outline)] {{ classes }}"
+  hx-get="{{ data_url }}"
+  hx-vals='{"sort_by":"{{ key }}","order":"{% if result.sort_by == key and result.order == "desc" %}asc{% else %}desc{% endif %}","q":"{{ result.q if result.q is defined else "" }}"}'
+  hx-trigger="click"
+  hx-target="#table-paged"
+  hx-swap="innerHTML"
+  hx-indicator="#list-loading">
+  {{ label }}
+  {% if result.sort_by == key %}
+    {% if result.order == "desc" %}
+      <i data-lucide="chevron-down" class="w-3 h-3 inline ml-1 text-on-surface-strong"></i>
+    {% else %}
+      <i data-lucide="chevron-up" class="w-3 h-3 inline ml-1 text-on-surface-strong"></i>
+    {% endif %}
+  {% endif %}
+</th>
+{% endmacro %}
+
+{# Cabeçalho sem ordenação #}
+{% macro plain_th(label, align='left', classes='') %}
+<th scope="col"
+  class="sticky top-0 z-10 bg-surface-alt py-2.5 {{ 'text-center' if align == 'center' else 'pl-3' }} font-semibold border-r border-outline shadow-[inset_0_-1px_0_0_var(--color-outline)] {{ classes }}">
+  {{ label }}
+</th>
+{% endmacro %}
+
+{# Rodapé de contagem (mantido vazio para compatibilidade reversa) #}
+{% macro footer_info(result) %}
+{% endmacro %}
+
+{# Paginação (prev/next com hx-vals de page/sort/order/q) #}
+{% macro pagination(result, data_url) %}
+<div id="pagination-controls"
+  class="flex items-center justify-between px-4 py-3 bg-surface-alt border-t border-outline text-xs flex-none">
+
+  <div class="text-on-surface/70">
+    {% if result.total_count > 0 %}
+      {% if result.total_pages == 1 %}
+        Mostrando todos os <strong>{{ result.total_count }}</strong> resultados
+      {% else %}
+        Mostrando <strong>{{ result.start_item }} - {{ result.end_item }}</strong> de <strong>{{ result.total_count }}</strong> resultados
+      {% endif %}
+    {% else %}
+      Nenhum resultado
+    {% endif %}
+  </div>
+
+  {% if result.total_pages > 1 %}
+  <div class="flex items-center gap-2">
+    <button
+      {% if result.has_previous %}
+      hx-get="{{ data_url }}"
+      hx-target="#table-paged"
+      hx-swap="innerHTML"
+      hx-indicator="#list-loading"
+      hx-vals='{"page":"{{ result.page - 1 }}","sort_by":"{{ result.sort_by }}","order":"{{ result.order }}","q":"{{ result.q if result.q is defined else "" }}"}'
+      {% else %}
+      disabled
+      {% endif %}
+      class="p-1 hover:bg-outline/20 rounded disabled:opacity-30 transition-all text-on-surface-strong">
+      <i data-lucide="chevron-left" class="w-4 h-4"></i>
+    </button>
+
+    <span class="px-3 py-1 bg-surface rounded border border-outline font-bold text-on-surface-strong">
+      {{ result.page }} / {{ result.total_pages }}
+    </span>
+
+    <button
+      {% if result.has_next %}
+      hx-get="{{ data_url }}"
+      hx-target="#table-paged"
+      hx-swap="innerHTML"
+      hx-indicator="#list-loading"
+      hx-vals='{"page":"{{ result.page + 1 }}","sort_by":"{{ result.sort_by }}","order":"{{ result.order }}","q":"{{ result.q if result.q is defined else "" }}"}'
+      {% else %}
+      disabled
+      {% endif %}
+      class="p-1 hover:bg-outline/20 rounded disabled:opacity-30 transition-all text-on-surface-strong">
+      <i data-lucide="chevron-right" class="w-4 h-4"></i>
+    </button>
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{# Estado vazio #}
+{% macro empty_state(icon='search-x', title='Nenhum resultado encontrado', hint='Tente ajustar os filtros ou cadastre um novo.', colspan=1) %}
+<tr>
+  <td colspan="{{ colspan }}" class="!p-0 h-full border-none align-middle">
+    <div class="table-empty-state">
+      <i data-lucide="{{ icon }}" class="w-8 h-8 opacity-20"></i>
+      <div class="text-center">
+        <p class="font-medium text-sm">{{ title }}</p>
+        <p class="text-[11px]">{{ hint }}</p>
+      </div>
+    </div>
+  </td>
+</tr>
+{% endmacro %}
+
+{# Botões de ação padrão de linha (Ver via softnav + Excluir via deleteModal) #}
+{% macro action_buttons(item_id, item_name, base_path, show_view=True, show_delete=True) %}
+<div class="flex justify-center gap-3">
+  {% if show_view %}
+  <button
+    type="button"
+    hx-get="{{ base_path }}/view/{{ item_id }}"
+    hx-target="#content"
+    hx-swap="innerHTML"
+    hx-push-url="true"
+    hx-indicator="#content"
+    class="text-on-surface/70 hover:text-secondary transition-colors"
+    title="Ver">
+    <i data-lucide="eye" class="w-4 h-4"></i>
+  </button>
+  {% endif %}
+  {% if show_delete %}
+  <button
+    type="button"
+    @click="$dispatch('open-delete-modal', { id: {{ item_id|string|tojson }}, name: {{ item_name|string|tojson }} })"
+    class="text-on-surface/70 hover:text-error transition-colors"
+    title="Excluir">
+    <i data-lucide="trash-2" class="w-4 h-4"></i>
+  </button>
+  {% endif %}
+</div>
+{% endmacro %}

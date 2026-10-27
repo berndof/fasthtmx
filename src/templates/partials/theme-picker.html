@@ -1,0 +1,16 @@
+<div class="px-3 py-2">
+ <p class="text-[11px] font-semibold tracking-widest uppercase text-on-surface/40 mb-2">Tema visual</p>
+ <div class="grid grid-cols-4 gap-1.5">
+ <template x-for="t in $store.theme.themes" :key="t.id">
+ <button
+ @click="$store.theme.setTheme(t.id)"
+ :class="$store.theme.baseTheme === t.id ? 'ring-2 ring-primary bg-primary/10 font-semibold' : 'hover:bg-surface-alt border-outline-soft'"
+ class="flex flex-col items-center gap-1 p-1.5 rounded-xl border transition-all duration-150 cursor-pointer text-on-surface"
+ type="button"
+ >
+ <span x-text="t.icon" class="text-base leading-none"></span>
+ <span x-text="t.name" class="text-[10px] leading-none truncate w-full text-center"></span>
+ </button>
+ </template>
+ </div>
+</div>

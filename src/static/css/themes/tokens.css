@@ -1,0 +1,46 @@
+/* Custom variant aponta para data-theme contendo "dark" ou classe .dark */
+@custom-variant dark (&:where([data-theme*="dark"], [data-theme*="dark"] *, .dark, .dark *));
+
+/* color-scheme nativo — scrollbar e form controls seguem o tema sem flash branco */
+html { scrollbar-gutter: stable; }
+html[data-theme*="light"] { color-scheme: light; }
+html[data-theme*="dark"],
+html.dark { color-scheme: dark; }
+
+@theme {
+    /* Semantic tokens — resolvidos pelas CSS vars de cada tema */
+    --color-surface-deep:    var(--theme-surface-deep);
+    --color-surface:         var(--theme-surface);
+    --color-surface-alt:     var(--theme-surface-alt);
+    --color-surface-raised:  var(--theme-surface-raised);
+    --color-surface-overlay: var(--theme-surface-overlay);
+    --color-on-surface:         var(--theme-on-surface);
+    --color-on-surface-strong:  var(--theme-on-surface-strong);
+    --color-on-surface-muted:   var(--theme-on-surface-muted);
+    --color-on-surface-faint:   var(--theme-on-surface-faint);
+    --color-primary: var(--theme-primary);
+    --color-on-primary: var(--theme-on-primary);
+    --color-secondary: var(--theme-secondary);
+    --color-on-secondary: var(--theme-on-secondary);
+    --color-outline: var(--theme-outline);
+    --color-outline-strong: var(--theme-outline-strong);
+    --color-outline-muted: var(--theme-outline-muted);
+    --color-outline-soft: var(--theme-outline-soft);
+    --color-outline-faint: var(--theme-outline-faint);
+    --color-outline-subtle: var(--theme-outline-subtle);
+    --color-accent: var(--theme-accent);
+    --color-on-accent: var(--theme-on-accent);
+
+    /* Status colors (compartilhados entre temas) */
+    --color-info: var(--color-sky-500);
+    --color-on-info: var(--color-white);
+    --color-success: var(--color-green-500);
+    --color-on-success: var(--color-white);
+    --color-warning: var(--color-amber-500);
+    --color-on-warning: var(--color-white);
+    --color-danger: var(--color-red-500);
+    --color-on-danger: var(--color-white);
+
+    /* border radius */
+    --radius-radius: var(--radius-md);
+}

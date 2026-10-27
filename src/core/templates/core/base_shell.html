@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="{{ theme|default('arctic-light') }}" class="{% if theme_is_dark %}dark{% endif %}" x-data>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% block title %}
+    <title>{{ page.title if page and page.title else "FastHTMX" }}</title>
+    {% endblock title %}
+
+    <script>
+    // TEMA — primeiro script do <head>, síncrono, antes de qualquer CSS (evita FOUC light→dark no F5)
+    // Prioridade: cookie (SSR truth) → prefers-color-scheme. Migração one-shot de _x_theme (localStorage legado) → cookie.
+    (function(){
+      var ALLOWED=new Set(["arctic-light","arctic-dark","emerald-light","emerald-dark","sunset-light","sunset-dark","midnight-light","midnight-dark"]);
+      function getCookie(n){try{var m=document.cookie.match(new RegExp('(?:^|; )'+n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'=([^;]*)'));return m?decodeURIComponent(m[1]):null;}catch(e){return null;}}
+      var t=getCookie('theme');
+      if(!ALLOWED.has(t)){
+        try{var raw=localStorage.getItem('_x_theme'); if(raw){var v=null; try{v=JSON.parse(raw);}catch(e){v=raw;} if(ALLOWED.has(v)) t=v; else if(ALLOWED.has(raw)) t=raw;}}catch(e){}
+        if(!ALLOWED.has(t)) t=window.matchMedia('(prefers-color-scheme: dark)').matches?'arctic-dark':'arctic-light';
+        try{document.cookie='theme='+encodeURIComponent(t)+'; path=/; max-age=31536000; samesite=lax';}catch(e){}
+        try{if(ALLOWED.has(t)) localStorage.removeItem('_x_theme');}catch(e){}
+      }
+      document.documentElement.setAttribute('data-theme',t);
+      document.documentElement.classList.toggle('dark', t.endsWith('-dark'));
+      document.documentElement.classList.add('theme-loading');
+    })();
+    </script>
+    <script>
+    // Libera as transições logo após o primeiro paint (evita animação no F5, reabilita para cliques)
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        document.documentElement.classList.remove('theme-loading', 'sidebar-loading');
+      });
+    });
+    setTimeout(function(){ document.documentElement.classList.remove('theme-loading', 'sidebar-loading'); }, 150);
+    </script>
+    <script>
+    // SIDEBAR — estado já aberto antes do primeiro paint (evita w-15→w-60 no F5)
+    (function(){
+      var open=false;
+      try{var raw=localStorage.getItem('_x_isSidebarOpen'); if(raw!==null){try{open=JSON.parse(raw)===true;}catch(e){open=raw==='true';}}}catch(e){}
+      if(open) document.documentElement.classList.add('sidebar-expanded');
+      document.documentElement.classList.add('sidebar-loading');
+    })();
+    </script>
+    <style>html[data-theme*="light"]{background:#f8fafc;color-scheme:light}html[data-theme*="dark"]{background:#090d16;color-scheme:dark}html.theme-loading *,html.theme-loading *::before,html.theme-loading *::after{transition:none!important;animation:none!important}</style>
+
+    <link rel="stylesheet" href="/static/css/app.css">
+    <script type="module" src="/static/js/main.js" defer></script>
+
+    {% block head %}{% endblock head %}
+</head>
+
+<body>
+{% block body %}{% endblock body %}
+</body>
+</html>

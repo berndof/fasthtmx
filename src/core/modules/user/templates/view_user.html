@@ -1,0 +1,296 @@
+{% extends "layout/template.html" %}
+
+{% block content %}
+<script>
+{
+    const viewUserForm = (initialData) => ({
+        first_name: initialData.first_name || "",
+        last_name: initialData.last_name || "",
+        username: initialData.username || "",
+        email: initialData.email || "",
+        is_enabled: initialData.is_enabled ?? true,
+        groups: initialData.groups || [],
+        allGroups: initialData.allGroups || [],
+        groupsOpen: false,
+
+        init() {
+            this.initial = {
+                first_name: this.first_name,
+                last_name: this.last_name,
+                username: this.username,
+                email: this.email,
+                is_enabled: this.is_enabled,
+                groups: [...this.groups],
+            };
+        },
+
+        get hasChanges() {
+            return this.first_name !== this.initial.first_name
+                || this.last_name !== this.initial.last_name
+                || this.username !== this.initial.username
+                || this.email !== this.initial.email
+                || this.is_enabled !== this.initial.is_enabled
+                || JSON.stringify([...this.groups].sort()) !== JSON.stringify([...this.initial.groups].sort());
+        },
+
+        get groupsDisplayText() {
+            if (this.groups.length === 0) return "Nenhum grupo";
+            return this.groups.join(", ");
+        },
+
+        toggleGroup(name) {
+            if (this.groups.includes(name)) {
+                this.groups = this.groups.filter(n => n !== name);
+            } else {
+                this.groups = [...this.groups, name];
+            }
+        },
+
+        isGroupSelected(name) {
+            return this.groups.includes(name);
+        },
+    });
+
+    registerComponent("viewUserForm", viewUserForm);
+}
+</script>
+
+<div
+    x-data="viewUserForm({
+        first_name: '{{ field_value(form, 'first_name') | default(item.first_name, true) }}',
+        last_name: '{{ field_value(form, 'last_name') | default(item.last_name, true) }}',
+        username: '{{ field_value(form, 'username') | default(item.username, true) }}',
+        email: '{{ field_value(form, 'email') | default(item.email, true) }}',
+        is_enabled: {{ 'true' if form_enabled else 'false' }},
+        groups: {{ selected_group_names | tojson | safe }},
+        allGroups: {{ all_groups | tojson | safe }},
+    })"
+    class="content-frame overflow-y-auto"
+>
+
+    {# HEADER #}
+    <div class="content-header">
+        <div class="title">
+            <div class="icon">
+                <i data-lucide="user-round"></i>
+            </div>
+            <div>
+                <h2>
+                    <span x-text="first_name + ' ' + last_name"> </span>
+                    <template x-if="isGroupSelected('admin')">
+                        <span class="badge badge-purple text-xs ml-2 align-middle">Admin</span>
+                    </template>
+                </h2>
+                <p>Visualizar e editar</p>
+            </div>
+        </div>
+
+        <div class="flex gap-2">
+            <button
+                @click="$dispatch('open-delete-modal', { id: '{{ item.id }}', name: '{{ item.name }}' })"
+                class="form-create-btn danger-btn"
+            >
+                        <span class="btn-label"><i data-lucide="trash-2" class="size-4"></i>
+                Excluir</span>
+                        <span class="htmx-indicator loading loading-spinner loading-sm"></span>
+                    </button>
+        </div>
+    </div>
+
+    {# METADADOS #}
+    <div class="flex gap-8 text-sm text-gray-500 px-4 pb-2">
+        <div class="flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            Criado em: {{ item.created_at.strftime('%d/%m/%Y %H:%M') if item.created_at else 'N/A' }}
+        </div>
+        <div class="flex items-center gap-2">
+            <i data-lucide="clock" class="w-4 h-4"></i>
+            Atualizado em: {{ item.updated_at.strftime('%d/%m/%Y %H:%M') if item.updated_at else 'N/A' }}
+        </div>
+    </div>
+
+    {# ERRO GLOBAL #}
+    {% if form_error %}
+    <div class="mx-4 rounded-radius border border-error bg-error/10 px-4 py-3 text-sm text-error flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+        {{ form_error }}
+    </div>
+    {% endif %}
+
+    {# FORM #}
+    <div class="flex flex-row h-full gap-4 p-4">
+        <div class="flex flex-col flex-1 gap-4 max-w-1/2">
+
+            <form
+                hx-put="/user/{{item.id}}"
+                hx-target="#content"
+                hx-swap="innerHTML"
+                hx-push-url="true" hx-indicator="#content"
+                class="w-full h-full flex flex-col gap-4"
+            >
+
+                {# NOME + SOBRENOME #}
+                <div class="field-set-row">
+                    <div class="form-field">
+                        <label for="inputFirstName">Nome:</label>
+                        <div class="input-field">
+                            <input
+                                id="inputFirstName"
+                                class="field"
+                                type="text"
+                                name="first_name"
+                                x-model="first_name"
+                                maxlength="50"
+                                required
+                            />
+                        </div>
+                        {% set fnerr = field_error(form, 'first_name') %}
+                        {% if fnerr %}<span class="text-red-500 text-xs">{{ fnerr }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-field">
+                        <label for="inputLastName">Último Nome:</label>
+                        <div class="input-field">
+                            <input
+                                id="inputLastName"
+                                class="field"
+                                type="text"
+                                name="last_name"
+                                x-model="last_name"
+                                maxlength="50"
+                                required
+                            />
+                        </div>
+                        {% set lnerr = field_error(form, 'last_name') %}
+                        {% if lnerr %}<span class="text-red-500 text-xs">{{ lnerr }}</span>{% endif %}
+                    </div>
+                </div>
+
+                {# USERNAME #}
+                <div class="form-field">
+                    <label for="inputUsername">Nome de usuário:</label>
+                    <div class="input-field">
+                        <i data-lucide="at-sign" class="size-4 text-gray-400 shrink-0"></i>
+                        <input
+                            id="inputUsername"
+                            class="field"
+                            type="text"
+                            name="username"
+                            x-model="username"
+                            maxlength="50"
+                            required
+                        />
+                    </div>
+                    {% set unerr = field_error(form, 'username') %}
+                    {% if unerr %}<span class="text-red-500 text-xs">{{ unerr }}</span>{% endif %}
+                </div>
+
+                {# EMAIL #}
+                <div class="form-field">
+                    <label for="inputEmail">Email:</label>
+                    <div class="input-field">
+                        <i data-lucide="mail" class="size-4 text-gray-400 shrink-0"></i>
+                        <input
+                            id="inputEmail"
+                            class="field"
+                            type="email"
+                            name="email"
+                            x-model="email"
+                            required
+                        />
+                    </div>
+                    {% set emerr = field_error(form, 'email') %}
+                    {% if emerr %}<span class="text-red-500 text-xs">{{ emerr }}</span>{% endif %}
+                </div>
+
+                {# GRUPOS - CUSTOM MULTI-SELECT #}
+                <div class="form-field">
+                    <label>Grupos:</label>
+
+                    <div class="relative">
+                        <div class="input-field cursor-pointer" @click="groupsOpen = !groupsOpen">
+                            <i data-lucide="users" class="size-4 text-gray-400 shrink-0"></i>
+                            <span class="field cursor-pointer truncate" x-text="groupsDisplayText"></span>
+                            <button type="button" class="toggle" @click.stop="groupsOpen = !groupsOpen">
+                                <i data-lucide="chevron-down" class="size-4" :class="groupsOpen ? 'rotate-180' : 'rotate-0'"></i>
+                            </button>
+                        </div>
+
+                        <div class="options-anchor">
+                            <div class="options-container" x-show="groupsOpen" @click.away="groupsOpen = false" x-cloak>
+                                <ul class="options">
+                                    <template x-for="group in allGroups" :key="group.id">
+                                        <li
+                                            class="group item"
+                                            @click="toggleGroup(group.name)"
+                                        >
+                                            <div class="container flex items-center gap-3">
+                                                <input
+                                                    type="checkbox"
+                                                    :checked="isGroupSelected(group.name)"
+                                                    class="rounded border-outline"
+                                                    @click.stop
+                                                >
+                                                <span x-text="group.name" class="capitalize"></span>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <template x-for="name in groups" :key="name">
+                            <input type="hidden" name="groups" :value="name">
+                        </template>
+                    </div>
+                </div>
+
+                {# STATUS #}
+                <div class="form-field">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            name="is_enabled"
+                            value="true"
+                            x-model="is_enabled"
+                            class="rounded border-outline"
+                        >
+                        <span>Usuário Ativo</span>
+                    </label>
+                    <input type="hidden" name="is_enabled" value="false">
+                </div>
+
+                {# BOTÃO SALVAR #}
+                <div class="form-field mt-2">
+                    <button
+                        type="submit"
+                        class="form-create-btn"
+                        :disabled="!hasChanges"
+                    >
+                        <span class="btn-label"><i data-lucide="save" class="size-4"></i>
+                        Salvar Alterações</span>
+                        <span class="htmx-indicator loading loading-spinner loading-sm"></span>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+{% include "partials/list/delete-modal.html" %}
+
+<style>
+    .danger-btn {
+        background-color: var(--color-danger) !important;
+        color: var(--color-on-danger) !important;
+    }
+    .danger-btn:hover {
+        opacity: 0.75;
+    }
+    button[type="submit"]:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock content %}

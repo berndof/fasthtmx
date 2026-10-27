@@ -1,0 +1,60 @@
+{#
+  Macros para navegação Softnav (HTMX + pushUrl + fallback href).
+  Registrados automaticamente como globais no Jinja2 e também importáveis via:
+  {% from "macros/softnav.html" import soft_link, soft_btn, page_header %}
+#}
+
+{% macro soft_link(url, label='', icon='', classes='', target='#content', swap='innerHTML', indicator='#content', push_url='true', title='') %}
+<a
+  href="{{ url }}"
+  hx-get="{{ url }}"
+  hx-target="{{ target }}"
+  hx-swap="{{ swap }}"
+  hx-push-url="{{ push_url }}"
+  hx-indicator="{{ indicator }}"
+  {% if title %}title="{{ title }}"{% endif %}
+  {% if classes %}class="{{ classes }}"{% endif %}
+>
+  {% if icon %}<i data-lucide="{{ icon }}"></i>{% endif %}
+  {% if caller is defined %}{{ caller() }}{% elif label %}<span>{{ label }}</span>{% endif %}
+</a>
+{% endmacro %}
+
+{% macro soft_btn(url, label='Novo', icon='circle-plus', classes='nav-create-btn', target='#content', swap='innerHTML', indicator='#content', push_url='true', title='') %}
+<button
+  type="button"
+  href="{{ url }}"
+  hx-get="{{ url }}"
+  hx-target="{{ target }}"
+  hx-swap="{{ swap }}"
+  hx-push-url="{{ push_url }}"
+  hx-indicator="{{ indicator }}"
+  {% if title %}title="{{ title }}"{% endif %}
+  class="{{ classes }}"
+>
+  {% if icon %}<i data-lucide="{{ icon }}"></i>{% endif %}
+  {% if caller is defined %}{{ caller() }}{% elif label %}<span>{{ label }}</span>{% endif %}
+</button>
+{% endmacro %}
+
+{% macro page_header(title, subtitle='', icon='layout-grid', create_url='', create_label='Novo', create_icon='circle-plus') %}
+<div class="content-header">
+  <div class="title flex-1">
+    {% if icon %}
+    <div class="icon">
+      <i data-lucide="{{ icon }}"></i>
+    </div>
+    {% endif %}
+    <div>
+      <h2>{{ title }}</h2>
+      {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
+    </div>
+  </div>
+
+  {% if caller is defined %}
+    {{ caller() }}
+  {% elif create_url %}
+    {{ soft_btn(create_url, label=create_label, icon=create_icon) }}
+  {% endif %}
+</div>
+{% endmacro %}

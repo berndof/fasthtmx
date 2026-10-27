@@ -1,0 +1,207 @@
+@layer components {
+    /* Anchoring containers */
+    .search-results-container {
+        @apply w-full top-full flex flex-col rounded-radius;
+    }
+    .options-container {
+        @apply w-full top-full flex flex-col rounded-radius;
+    }
+
+    /* Panel — redesigned combobox dropdown */
+    .search-results {
+        @apply bg-surface border border-outline shadow-2xl rounded-xl py-1.5 flex flex-col gap-0.5;
+    }
+    .search-results-panel {
+        @apply bg-surface border border-outline shadow-2xl rounded-xl overflow-hidden flex flex-col;
+    }
+    .search-results-scroll {
+        @apply max-h-72 overflow-y-auto py-1.5 flex flex-col gap-0.5;
+    }
+    .search-results-list {
+        @apply flex flex-col gap-0.5 list-none m-0 p-0;
+    }
+    .search-results-footer {
+        @apply text-[11px] text-on-surface/50 px-3 py-2 border-t border-outline-soft bg-surface/95 backdrop-blur flex items-center gap-1.5 shrink-0;
+    }
+    .options {
+        @apply bg-surface border border-outline shadow-2xl rounded-xl max-h-72 overflow-y-auto py-1.5 flex flex-col gap-0.5;
+    }
+
+    /* Thin custom scrollbar */
+    .search-results::-webkit-scrollbar { @apply w-1.5; }
+    .search-results::-webkit-scrollbar-track { @apply bg-transparent; }
+    .search-results::-webkit-scrollbar-thumb { @apply bg-primary/20 rounded-full; }
+    .options::-webkit-scrollbar { @apply w-1.5; }
+    .options::-webkit-scrollbar-track { @apply bg-transparent; }
+    .options::-webkit-scrollbar-thumb { @apply bg-primary/20 rounded-full; }
+
+    /* Base combobox item — covers legacy .item and new .combobox-item */
+    .search-results .item,
+    .search-results .combobox-item,
+    .search-results-panel .item,
+    .search-results-panel .combobox-item,
+    .search-results-scroll .item,
+    .search-results-scroll .combobox-item,
+    .search-results-list .item,
+    .search-results-list .combobox-item,
+    .options .item,
+    .options .combobox-item {
+        @apply flex items-center gap-3 cursor-pointer rounded-lg mx-1 px-3 py-2.5 text-sm text-on-surface border border-transparent transition-all duration-150 ease-out;
+    }
+    .search-results .item:hover,
+    .search-results .combobox-item:hover,
+    .search-results-panel .item:hover,
+    .search-results-panel .combobox-item:hover,
+    .search-results-scroll .item:hover,
+    .search-results-scroll .combobox-item:hover,
+    .search-results-list .item:hover,
+    .search-results-list .combobox-item:hover,
+    .options .item:hover,
+    .options .combobox-item:hover {
+        @apply bg-accent/5 text-accent border-accent/10;
+    }
+    /* Keyboard-active state — toggled via JS classList */
+    .search-results .item.active,
+    .search-results .combobox-item.active,
+    .search-results .combobox-item--active,
+    .search-results-panel .item.active,
+    .search-results-panel .combobox-item.active,
+    .search-results-panel .combobox-item--active,
+    .search-results-scroll .item.active,
+    .search-results-scroll .combobox-item.active,
+    .search-results-scroll .combobox-item--active,
+    .search-results-list .item.active,
+    .search-results-list .combobox-item.active,
+    .search-results-list .combobox-item--active,
+    .options .item.active,
+    .options .combobox-item.active,
+    .options .combobox-item--active {
+        @apply bg-accent/10 text-accent font-medium border-accent/20 shadow-[inset_3px_0_0_0_theme(colors.accent)];
+    }
+
+    /* Container inside item */
+    .search-results .item .container,
+    .search-results .combobox-item .container,
+    .search-results-panel .item .container,
+    .search-results-panel .combobox-item .container,
+    .search-results-scroll .item .container,
+    .search-results-scroll .combobox-item .container,
+    .search-results-list .item .container,
+    .search-results-list .combobox-item .container,
+    .options .item .container,
+    .options .combobox-item .container {
+        @apply flex items-center gap-3 min-w-0 flex-1;
+    }
+    .search-results .combobox-item__body,
+    .search-results-panel .combobox-item__body,
+    .search-results-scroll .combobox-item__body,
+    .search-results-list .combobox-item__body,
+    .options .combobox-item__body {
+        @apply flex flex-col gap-0.5 min-w-0 flex-1;
+    }
+    .search-results .combobox-item__title,
+    .search-results-panel .combobox-item__title,
+    .search-results-scroll .combobox-item__title,
+    .search-results-list .combobox-item__title,
+    .options .combobox-item__title {
+        @apply text-sm font-medium truncate;
+    }
+    .search-results .combobox-item__subtitle,
+    .search-results-panel .combobox-item__subtitle,
+    .search-results-scroll .combobox-item__subtitle,
+    .search-results-list .combobox-item__subtitle,
+    .options .combobox-item__subtitle {
+        @apply text-xs text-on-surface/60 truncate;
+    }
+
+    /* Action row — "Criar X" */
+    .search-results .combobox-item--action,
+    .search-results-panel .combobox-item--action,
+    .search-results-scroll .combobox-item--action,
+    .search-results-list .combobox-item--action,
+    .options .combobox-item--action {
+        @apply bg-accent/5 border-dashed border-accent/20;
+    }
+    .search-results .combobox-item--action:hover,
+    .search-results-panel .combobox-item--action:hover,
+    .search-results-scroll .combobox-item--action:hover,
+    .search-results-list .combobox-item--action:hover,
+    .options .combobox-item--action:hover {
+        @apply bg-accent/10 border-accent/30;
+    }
+
+    /* Danger row — "Limpar seleção" */
+    .search-results .combobox-item--danger,
+    .search-results-panel .combobox-item--danger,
+    .search-results-scroll .combobox-item--danger,
+    .search-results-list .combobox-item--danger,
+    .options .combobox-item--danger {
+        @apply bg-danger/5 border-danger/10;
+    }
+    .search-results .combobox-item--danger:hover,
+    .search-results-panel .combobox-item--danger:hover,
+    .search-results-scroll .combobox-item--danger:hover,
+    .search-results-list .combobox-item--danger:hover,
+    .options .combobox-item--danger:hover {
+        @apply bg-danger/10 border-danger/20 text-danger;
+    }
+
+    /* Footer hint */
+    .search-results .combobox-footer,
+    .search-results-panel .combobox-footer,
+    .search-results-scroll .combobox-footer,
+    .search-results-list .combobox-footer,
+    .options .combobox-footer {
+        @apply text-[11px] text-on-surface/40 px-3 py-1.5 border-t border-outline-soft mt-1 flex items-center gap-1.5;
+    }
+
+    /* Sentinel — loader row */
+    .search-results .combobox-sentinel,
+    .search-results-panel .combobox-sentinel,
+    .search-results-scroll .combobox-sentinel,
+    .search-results-list .combobox-sentinel,
+    .options .combobox-sentinel {
+        @apply py-2 flex justify-center list-none;
+    }
+
+    /* Unified empty states — horizontal, fixed height matching combobox-item (min-h-[44px]) */
+    .search-results-panel .combobox-empty.combobox-empty--prompt,
+    .search-results-scroll .combobox-empty.combobox-empty--prompt,
+    .search-results-list .combobox-empty.combobox-empty--prompt,
+    .search-results-panel .combobox-empty.combobox-empty--no-results,
+    .search-results-scroll .combobox-empty.combobox-empty--no-results,
+    .search-results-list .combobox-empty.combobox-empty--no-results {
+        @apply flex items-center gap-3 py-2.5 px-3 rounded-lg mx-1 min-h-[44px] list-none border border-transparent transition-all duration-150 ease-out;
+    }
+    .search-results-panel .combobox-empty.combobox-empty--prompt,
+    .search-results-scroll .combobox-empty.combobox-empty--prompt,
+    .search-results-list .combobox-empty.combobox-empty--prompt {
+        @apply text-on-surface/70;
+    }
+    .search-results-panel .combobox-empty.combobox-empty--no-results,
+    .search-results-scroll .combobox-empty.combobox-empty--no-results,
+    .search-results-list .combobox-empty.combobox-empty--no-results {
+        @apply bg-warning/10 border-dashed border-warning/30 text-on-surface;
+    }
+
+    /* Spinner animation for combobox */
+    .combobox-spinner svg,
+    .combobox-spinner .animate-spin {
+        animation: combobox-spin 1s linear infinite !important;
+        transform-origin: center center;
+    }
+
+    /* Legacy centered empty state (kept for non-dropdown contexts) */
+    .search-results .combobox-empty,
+    .search-results-panel .combobox-empty:not(.combobox-empty--prompt):not(.combobox-empty--no-results),
+    .search-results-scroll .combobox-empty:not(.combobox-empty--prompt):not(.combobox-empty--no-results),
+    .search-results-list .combobox-empty:not(.combobox-empty--prompt):not(.combobox-empty--no-results),
+    .options .combobox-empty {
+        @apply flex flex-col items-center justify-center gap-1.5 py-5 px-3 text-on-surface/50 text-xs border border-dashed border-outline rounded-lg mx-1;
+    }
+}
+
+@keyframes combobox-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

@@ -1,0 +1,68 @@
+/* Arctic Light — Clean azulado profissional */
+:root,
+:root[data-theme="arctic-light"],
+[data-theme="arctic-light"],
+:root[data-theme="light"],
+[data-theme="light"] {
+    --theme-surface-deep:    #f1f5f9;
+    --theme-surface:         #ffffff;
+    --theme-surface-alt:     #f8fafc;
+    --theme-surface-raised:  #f1f5f9;
+    --theme-surface-overlay: #e8edf3;
+
+    --theme-on-surface:        #334155;
+    --theme-on-surface-strong: #0f172a;
+    --theme-on-surface-muted:  #64748b;
+    --theme-on-surface-faint:  #94a3b8;
+
+    --theme-primary:    #2563eb;
+    --theme-on-primary: #ffffff;
+    --theme-secondary:    #7c3aed;
+    --theme-on-secondary: #ffffff;
+
+    --theme-outline:        #e2e8f0;
+    --theme-outline-strong: #cbd5e1;
+    --theme-outline-muted:  #f0f4f8;
+    --theme-outline-soft:   #e8edf3;
+    --theme-outline-faint:  #f3f6f9;
+    --theme-outline-subtle: #f6f8fa;
+
+    --theme-accent:    #0d9488;
+    --theme-on-accent: #ffffff;
+    --theme-accent-secondary: #2563eb;
+}
+
+/* Arctic Dark — Inspirado no GitHub Dark — camadas com profundidade real */
+:root[data-theme="arctic-dark"],
+[data-theme="arctic-dark"],
+:root[data-theme="dark"],
+[data-theme="dark"],
+:root.dark:not([data-theme*="emerald"]):not([data-theme*="sunset"]):not([data-theme*="midnight"]),
+html.dark:not([data-theme*="emerald"]):not([data-theme*="sunset"]):not([data-theme*="midnight"]) {
+    --theme-surface-deep:    #060a12;
+    --theme-surface:         #0d1117;
+    --theme-surface-alt:     #161b22;
+    --theme-surface-raised:  #1c2128;
+    --theme-surface-overlay: #21262d;
+
+    --theme-on-surface:        #8b949e;
+    --theme-on-surface-strong: #e6edf3;
+    --theme-on-surface-muted:  #6e7681;
+    --theme-on-surface-faint:  #484f58;
+
+    --theme-primary:    #3b82f6;
+    --theme-on-primary: #ffffff;
+    --theme-secondary:    #a78bfa;
+    --theme-on-secondary: #1e1b4b;
+
+    --theme-outline:        #30363d;
+    --theme-outline-strong: #484f58;
+    --theme-outline-muted:  #18202f;
+    --theme-outline-soft:   #1c2634;
+    --theme-outline-faint:  #171f2d;
+    --theme-outline-subtle: #151d2c;
+
+    --theme-accent:    #2dd4bf;
+    --theme-on-accent: #0f172a;
+    --theme-accent-secondary: #3b82f6;
+}

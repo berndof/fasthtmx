@@ -1,0 +1,70 @@
+@layer components {
+    /* TABLE LIST PATTERN */
+    .table-list {
+        @apply w-full table-fixed text-left text-sm text-on-surface;
+    }
+    .table-list > thead {
+        @apply sticky top-0 z-10 bg-surface-alt text-xs tracking-wider uppercase
+               text-on-surface-muted;
+    }
+    .table-list > thead::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px; /*altura do gradiente*/
+        background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+        z-index: 11;
+        pointer-events: none;
+    }
+    .table-list > thead > tr > th {
+        @apply sticky top-0 z-10 bg-surface-alt font-semibold py-2.5 px-3;
+    }
+    .table-list > thead th:not(:last-child) {
+        @apply border-r border-outline;
+    }
+    .table-list > tbody {
+        @apply divide-y divide-outline;
+    }
+    .table-list > tbody > tr {
+        @apply border-l-2 border-r-2 border-b-2 border-transparent
+               transition-colors duration-150 ease-in-out;
+    }
+    .table-list > tbody > tr:nth-child(even) {
+        @apply bg-surface-alt/40;
+    }
+    .table-list > tbody > tr:hover {
+        @apply bg-surface-raised border-l-primary border-b-primary/50;
+    }
+    .table-list > tbody > tr:hover td:first-child span {
+        @apply text-primary font-medium;
+    }
+    .table-list > tbody > tr > td {
+        @apply py-2.5 px-3;
+    }
+
+    /* Empty state container - ensures proper centering when table is empty */
+    .overflow-auto:has(.table-empty-state) {
+        overflow-y: hidden !important;
+    }
+    .table-list:has(.table-empty-state) {
+        height: 100%;
+    }
+    .table-list:has(.table-empty-state) tbody {
+        height: 100%;
+    }
+    .table-list:has(.table-empty-state) tbody tr {
+        height: 100%;
+    }
+    .table-list:has(.table-empty-state) tbody td {
+        height: 100%;
+        vertical-align: middle;
+        text-align: center;
+        border: none;
+        padding: 0;
+    }
+    .table-empty-state {
+        @apply flex flex-1 h-full min-h-[280px] w-full flex-col items-center justify-center gap-2 p-8;
+    }
+}

@@ -1,0 +1,97 @@
+{% extends "layout/template.html" %}
+{% from "macros/softnav.html" import page_header, soft_btn %}
+{% from "macros/subpage.html" import subpage_nav, subpage_container %}
+{% from "macros/forms.html" import form_alert, form_field, form_textarea, form_checkbox, submit_btn %}
+
+{% block content %}
+<div class="content-frame overflow-y-auto"
+     x-data="subpageNav({
+        active: '{{ initial_subpage|default('arquitetura') }}',
+        tabs: {{ tabs|tojson|safe if tabs is defined else '[]' }}
+     })">
+
+  {% call page_header('FastHTMX Core Lab', 'Framework explícito FastAPI + HTMX + Alpine + Jinja2', 'zap') %}
+    {% if tabs is defined %}
+      {{ subpage_nav(tabs) }}
+    {% endif %}
+  {% endcall %}
+
+  <div class="content-row">
+    {# COLUNA ESQUERDA: PLAYGROUND DE FORMULÁRIO EXPLÍCITO #}
+    <div id="playground-wrapper" class="half-col overflow-y-auto pr-1">
+      {% block playground_form %}
+      <div class="rounded-radius border border-outline bg-surface p-4 flex flex-col gap-4 shadow-xs">
+        <div class="flex items-center justify-between border-b border-outline pb-3">
+          <div>
+            <h3 class="text-sm font-semibold text-on-surface-strong flex items-center gap-2">
+              <i data-lucide="flask-conical" class="size-4 text-primary"></i>
+              Playground: <code class="text-xs font-mono text-accent">parse_form + FormSchema</code>
+            </h3>
+            <p class="text-xs text-on-surface/60 mt-0.5">
+              Teste coerção automática de moeda BRL, CPF/CNPJ, checkboxes booleanos e listas multi-valor (<code class="font-mono">getlist</code>).
+            </p>
+          </div>
+        </div>
+
+        <form
+          hx-post="/home/playground"
+          hx-target="#playground-wrapper"
+          hx-swap="innerHTML"
+          class="form"
+        >
+          {{ form_alert(form_error) }}
+
+          <div class="field-set-row">
+            {{ form_field(form, 'project_name', 'Nome do Projeto', placeholder='Ex: Portal Intranet', required=True, maxlength=60, icon='folder-git-2') }}
+            {{ form_field(form, 'document', 'Documento (CleanDigits)', placeholder='000.000.000-00', icon='hash') }}
+          </div>
+
+          <div class="field-set-row">
+            {{ form_field(form, 'budget', 'Orçamento (BRLDecimal)', placeholder='R$ 12.500,00', icon='banknote') }}
+
+            <div class="form-field">
+              <label>Recursos habilitados (<code class="text-xs font-mono">list[str]</code>):</label>
+              <div class="flex flex-wrap gap-3 pt-1.5">
+                {% for feat_key, feat_label in [('softnav', 'Softnav'), ('subpages', 'Subpages'), ('sse', 'SSE Real-time'), ('audit', 'Auditoria')] %}
+                <label class="flex items-center gap-1.5 text-xs cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="features"
+                    value="{{ feat_key }}"
+                    {% if field_in_list(form, 'features', feat_key) or (not form and feat_key in ['softnav', 'subpages']) %}checked{% endif %}
+                    class="rounded border-outline"
+                  />
+                  <span>{{ feat_label }}</span>
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          {{ form_textarea(form, 'notes', 'Observações (OptionalStr — string vazia vira None)', rows=2, placeholder='Opcional...') }}
+
+          {{ form_checkbox(form, 'active', 'Projeto ativo (HtmlCheckbox — sem hidden input falso)', default=True) }}
+
+          <div class="form-last-row">
+            {{ submit_btn('Testar parse_form', icon='check-circle-2') }}
+          </div>
+        </form>
+
+        {% if submitted_data %}
+        <div class="rounded-radius border border-success/30 bg-success/10 p-3 text-xs space-y-1.5">
+          <div class="font-semibold text-success flex items-center gap-1.5">
+            <i data-lucide="check" class="size-4"></i>
+            Payload tipado resultante (<code class="font-mono">form.data.model_dump()</code>):
+          </div>
+          <pre class="font-mono text-[11px] text-on-surface bg-surface p-2.5 rounded border border-outline overflow-x-auto">{{ submitted_data | tojson(indent=2) }}</pre>
+        </div>
+        {% endif %}
+      </div>
+      {% endblock playground_form %}
+    </div>
+
+    {# COLUNA DIREITA: SUBPAGES #}
+    {{ subpage_container() }}
+  </div>
+</div>
+{% endblock content %}

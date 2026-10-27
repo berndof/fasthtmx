@@ -1,0 +1,54 @@
+@layer components {
+    .nav-create-btn {
+        @apply
+            inline-flex justify-center items-center gap-2
+            rounded-radius whitespace-nowrap
+            px-5 py-2
+            text-sm font-medium
+            tracking-wide
+            cursor-pointer
+            transition-colors duration-200 ease-in-out
+            text-on-primary
+            border border-transparent
+            shadow-none
+            w-auto shrink-0
+            relative overflow-hidden
+            isolate
+        ;
+        background: var(--color-primary);
+        & svg {
+            @apply size-5 relative z-[1]
+        }
+        /* gradient overlay — fades in on hover (only opacity animates, no transform) */
+        &::before {
+            content: '';
+            @apply absolute inset-0 rounded-radius pointer-events-none;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            opacity: 0;
+            transition: opacity 250ms ease-in-out;
+            z-index: -1;
+        }
+        &:hover::before {
+            opacity: 1;
+        }
+        /* keep content above pseudo; text + icon centered via flex */
+        & > * { position: relative; z-index: 1; }
+    }
+}
+
+.btn {
+    @apply
+        inline-flex justify-center items-center gap-2
+        rounded-radius whitespace-nowrap
+        px-4 py-2
+        text-sm font-medium
+        tracking-wide
+        cursor-pointer
+        transition-all duration-200 ease-in-out
+        text-center
+        w-full
+    ;
+    & svg {
+        @apply size-5
+    }
+}

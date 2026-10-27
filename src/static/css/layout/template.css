@@ -1,0 +1,9 @@
+@layer template {
+    .body-container {
+        @apply
+            relative h-svh flex flex-col
+            bg-surface-alt transition-all duration-200 ease-in-out
+            overflow-hidden
+        ;
+    }
+}

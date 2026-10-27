@@ -1,0 +1,59 @@
+/* Midnight Light — Violeta diurno, elegante */
+:root[data-theme="midnight-light"],
+[data-theme="midnight-light"] {
+    --theme-surface-deep:    #f5f3ff;
+    --theme-surface:         #ffffff;
+    --theme-surface-alt:     #faf5ff;
+    --theme-surface-raised:  #f3e8ff;
+    --theme-surface-overlay: #ede9fe;
+
+    --theme-on-surface:        #3b2f6e;
+    --theme-on-surface-strong: #1e1254;
+    --theme-on-surface-muted:  #6b5fa8;
+    --theme-on-surface-faint:  #a99fd0;
+
+    --theme-primary:    #7c3aed;
+    --theme-on-primary: #ffffff;
+    --theme-secondary:    #2563eb;
+    --theme-on-secondary: #ffffff;
+
+    --theme-outline:        #e9d5ff;
+    --theme-outline-strong: #d8b4fe;
+    --theme-outline-muted:  #f4eaff;
+    --theme-outline-soft:   #edddff;
+    --theme-outline-faint:  #f6eeff;
+    --theme-outline-subtle: #f8f2ff;
+
+    --theme-accent:    #d97706;
+    --theme-on-accent: #ffffff;
+}
+
+/* Midnight Dark — Violeta profundo e denso */
+:root[data-theme="midnight-dark"],
+[data-theme="midnight-dark"] {
+    --theme-surface-deep:    #08071a;
+    --theme-surface:         #0f0d2a;
+    --theme-surface-alt:     #151235;
+    --theme-surface-raised:  #1c1840;
+    --theme-surface-overlay: #231f4a;
+
+    --theme-on-surface:        #9d8fd4;
+    --theme-on-surface-strong: #e8e3f8;
+    --theme-on-surface-muted:  #7060a8;
+    --theme-on-surface-faint:  #4a3d72;
+
+    --theme-primary:    #a78bfa;
+    --theme-on-primary: #1e1b4b;
+    --theme-secondary:    #60a5fa;
+    --theme-on-secondary: #1e3a8a;
+
+    --theme-outline:        #2e2254;
+    --theme-outline-strong: #45347a;
+    --theme-outline-muted:  #231a42;
+    --theme-outline-soft:   #2a1f4d;
+    --theme-outline-faint:  #21183e;
+    --theme-outline-subtle: #1f173b;
+
+    --theme-accent:    #fbbf24;
+    --theme-on-accent: #0f0b1e;
+}

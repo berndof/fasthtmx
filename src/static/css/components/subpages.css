@@ -1,0 +1,59 @@
+@layer subpages {
+    .subpage-frame {
+        @apply
+        border border-outline shadow-md rounded-radius flex flex-col h-full min-h-0
+    };
+    .subpage-card {
+        @apply
+        w-full h-full flex flex-col min-h-0
+    }
+    #subpage-card.htmx-request::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 28px;
+        height: 28px;
+        border-radius: 9999px;
+        border: 3px solid var(--color-outline-strong);
+        border-top-color: var(--color-primary);
+        animation: spin 1s linear infinite;
+    }
+    #subpage-card { position: relative; }
+
+    #faixas-altura-card.htmx-request::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 28px;
+        height: 28px;
+        border-radius: 9999px;
+        border: 3px solid var(--color-outline-strong);
+        border-top-color: var(--color-primary);
+        animation: spin 1s linear infinite;
+    }
+    #faixas-altura-card { position: relative; }
+
+    .tab-btn {
+        @apply
+        flex items-center gap-2 px-2.5 text-xs font-normal
+        transition-all duration-200 ease-in-out whitespace-nowrap
+        rounded-radius
+        active:scale-105;
+    }
+    .tab-btn-active {
+        @apply
+        bg-accent/15
+        text-accent font-semibold
+        shadow-sm shadow-on-surface/20
+        ;
+    }
+.tab-btn-inactive {
+        @apply
+            text-on-surface-muted border-transparent
+            hover:bg-surface-raised
+            hover:shadow-sm hover:shadow-on-surface/10
+            hover:text-on-surface hover:border-outline;
+    }
+}

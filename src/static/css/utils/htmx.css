@@ -1,0 +1,155 @@
+/* HTMX */
+.htmx-swapping {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.htmx-indicator {
+    opacity: 0;
+    pointer-events: none;
+    @apply transition-all duration-200 ease-in-out;
+}
+
+#list-loading {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 150ms ease-in-out;
+    z-index: -1;
+}
+
+#list-loading.htmx-request {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 20;
+}
+
+#content-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 30;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#content-loading.htmx-request {
+    opacity: 1;
+}
+
+#content.htmx-request {
+    opacity: 0.5;
+    filter: blur(0.5px);
+    pointer-events: none;
+    transition: opacity 200ms ease-in-out, filter 200ms ease-in-out;
+}
+
+#content:not(.htmx-request) {
+    transition: opacity 150ms ease-out, filter 150ms ease-out;
+}
+
+#content-loading > div {
+    width: 60%;
+    will-change: transform;
+    transform: translateX(-110%);
+}
+
+html.htmx-request {
+    cursor: progress;
+}
+
+.btn.htmx-request,
+.form-create-btn.htmx-request {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.btn .htmx-indicator,
+.form-create-btn .htmx-indicator,
+button .htmx-indicator {
+    display: none;
+}
+
+.btn.htmx-request .htmx-indicator,
+.form-create-btn.htmx-request .htmx-indicator {
+    display: inline-flex;
+}
+
+.btn .btn-label,
+.form-create-btn .btn-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn.htmx-request .btn-label,
+.form-create-btn.htmx-request .btn-label {
+    display: none;
+}
+
+form.htmx-request .btn .htmx-indicator,
+form.htmx-request .form-create-btn .htmx-indicator {
+    display: inline-flex;
+}
+
+form.htmx-request .btn .btn-label,
+form.htmx-request .form-create-btn .btn-label {
+    display: none;
+}
+
+form.htmx-request .btn,
+form.htmx-request .form-create-btn {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+#dashboard-main.htmx-request,
+#comercial-main.htmx-request {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+#terreno-results.htmx-request,
+#cliente-results.htmx-request,
+#torre-results.htmx-request {
+    opacity: 0.6;
+}
+
+#table-paged {
+    position: relative;
+}
+
+#dashboard-main .htmx-indicator,
+#comercial-main .htmx-indicator {
+    display: none;
+    opacity: 0;
+}
+
+#dashboard-main.htmx-request .htmx-indicator,
+#comercial-main.htmx-request .htmx-indicator {
+    display: flex;
+    opacity: 1;
+}
+
+.htmx-request .animate-spin,
+.htmx-request.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.search-indicator {
+    display: none;
+}
+.search-indicator.htmx-request {
+    display: inline-block;
+}
+.search-indicator.htmx-request ~ .search-icon,
+#searchbar:has(.htmx-request) .search-icon {
+    display: none;
+}

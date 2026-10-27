@@ -1,0 +1,220 @@
+{% extends "layout/template.html" %}
+
+{% block content %}
+<script>
+{
+    const userForm = (initialData = {}) => ({
+        first_name: initialData.first_name || "",
+        last_name: initialData.last_name || "",
+        username: initialData.username || "",
+        email: initialData.email || "",
+        password: initialData.password || "",
+        password_confirm: initialData.password_confirm || "",
+
+        is_admin: false,
+
+        showUsernameError: {{ 'true' if field_has_error(form, 'username') else 'false' }},
+        showEmailError: {{ 'true' if field_has_error(form, 'email') else 'false' }},
+
+        get passwordsMatch() {
+            return this.password === this.password_confirm;
+        },
+        get passwordMismatch() {
+            return this.password_confirm.length > 0 && !this.passwordsMatch;
+        },
+        get passwordMatchFeedback() {
+            return this.password_confirm.length > 0 && this.passwordsMatch;
+        },
+    });
+
+    registerComponent("userForm", userForm);
+}
+</script>
+
+<div class="content-frame overflow-y-auto h-full">
+    <div class="content-header">
+        <div class="title">
+            <div class="icon">
+                <i data-lucide="user-round"></i>
+            </div>
+            <div>
+                <h2>Novo Usuário</h2>
+                <p>Criação</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-row">
+
+        <div class="half-col">
+        {% block form %}
+
+            <div
+                x-data="userForm({
+                    first_name: '{{ field_value(form, 'first_name') }}',
+                    last_name: '{{ field_value(form, 'last_name') }}',
+                    username: '{{ field_value(form, 'username') }}',
+                    email: '{{ field_value(form, 'email') }}'
+                })"
+            >
+                <form hx-post="/user/create"
+                    hx-target="#content"
+                    hx-swap="innerHTML"
+                    hx-push-url="true" hx-indicator="#content"
+                    class="form"
+                >
+
+                    <div class="field-set-row">
+                        <div class="form-field">
+                            <label for="inputFirstName">Nome:</label>
+                            <div class="input-field">
+                                <input
+                                    id="inputFirstName"
+                                    class="field pl-2"
+                                    x-model="first_name"
+                                    type="text"
+                                    name="first_name"
+                                    maxlength="50"
+                                    placeholder="Primeiro Nome"
+                                    autocomplete="off"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="inputLastName">Último Nome:
+                            </label>
+                            <div class="input-field">
+                                <input
+                                    id="inputLastName"
+                                    class="field pl-2"
+                                    x-model="last_name"
+                                    type="text"
+                                    name="last_name"
+                                    placeholder="Sobrenome"
+                                    autocomplete="off"
+                                    required
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="inputUsername">Nome de usuário:
+                            <template x-if="showUsernameError">
+                                <span class="text-red-500 text-xs ml-1">
+                                {{ field_error(form, 'username') }}
+                                </span>
+                            </template>
+                        </label>
+                        <div class="input-field {% if field_has_error(form, 'username') %}border-red-500{% endif %}">
+                            <input
+                                id="inputUsername"
+                                class="field pl-2"
+                                x-model="username"
+                                type="text"
+                                name="username"
+                                maxlength="50"
+                                placeholder="Nome de usuário"
+                                autocomplete="new-username"
+                                required
+                                @input="showUsernameError = false"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="inputEmail">Email:
+                            <template x-if="showEmailError">
+                                <span class="text-red-500 text-xs ml-1">
+                                {{ field_error(form, 'email') }}
+                                </span>
+                            </template>
+                        </label>
+                        <div class="input-field {% if field_has_error(form, 'email') %}border-red-500{% endif %}">
+                            <input
+                                id="inputEmail"
+                                class="field pl-2"
+                                x-model="email"
+                                type="email"
+                                name="email"
+                                placeholder="exemplo@abc.com"
+                                autocomplete="off"
+                                required
+                                @input="showEmailError = false"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="field-set-row">
+                        <div class="form-field">
+                            <label for="inputPassword">Senha:</label>
+                            <div class="input-field">
+                                <input
+                                    id="inputPassword"
+                                    class="field pl-2"
+                                    x-model="password"
+                                    type="password"
+                                    name="password"
+                                    minlength="8"
+                                    maxlength="128"
+                                    placeholder="Senha"
+                                    autocomplete="new-password"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="inputPasswordConfirm">Confirme a senha:
+                                <span x-show="passwordMismatch" x-cloak class="text-red-500 text-xs ml-1">
+                                    Senhas não conferem
+                                </span>
+                                <span x-show="passwordMatchFeedback" x-cloak class="text-green-500 text-xs ml-1">
+                                    <i data-lucide="check" class="size-3 inline"></i> Senhas conferem
+                                </span>
+                            </label>
+                            <div class="input-field" x-bind:class="passwordMismatch ? 'border-red-500' : ''">
+                                <input
+                                    id="inputPasswordConfirm"
+                                    class="field pl-2"
+                                    x-model="password_confirm"
+                                    type="password"
+                                    name="password_confirm"
+                                    minlength="8"
+                                    placeholder="Confirme a senha"
+                                    autocomplete="off"
+                                    required
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" x-model="is_admin" class="rounded border-outline">
+                            <span>Criar como Administrador</span>
+                        </label>
+                        <template x-if="is_admin">
+                            <input type="hidden" name="groups" value="admin">
+                        </template>
+                    </div>
+
+                    <div class="form-field mt-2">
+                        <button type="submit" class="form-create-btn ">
+                        <span class="btn-label"><i data-lucide="circle-plus"></i>
+                            Salvar Usuário</span>
+                        <span class="htmx-indicator loading loading-spinner loading-sm"></span>
+                    </button>
+                    </div>
+
+                </form>
+            </div>
+        {% endblock form %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock content %}

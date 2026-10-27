@@ -1,0 +1,338 @@
+{% extends "layout/template.html" %}
+{% from "partials/list/macros.html" import plain_th %}
+
+{% block content %}
+<div class="content-frame overflow-y-auto" x-data="{ showForms: {{ 'true' if open_add is defined and open_add else 'false' }} }">
+  <div class="content-header">
+    <div class="title flex-1 min-w-0">
+      <div class="icon">
+        <i data-lucide="megaphone"></i>
+      </div>
+      <div class="min-w-0">
+        <h2>Avisos</h2>
+        <p>Caixa de saída — avisos enviados para a equipe</p>
+      </div>
+    </div>
+    <button
+      type="button"
+      @click="showForms = true"
+      x-show="!showForms"
+      x-cloak
+      class="nav-create-btn"
+    >
+      <i data-lucide="plus"></i>
+      <span>Novo aviso</span>
+    </button>
+    <button
+      type="button"
+      x-show="showForms"
+      x-cloak
+      @click="showForms = false"
+      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-radius border border-outline bg-surface hover:bg-surface-alt text-on-surface-muted hover:text-on-surface text-sm font-medium transition-colors cursor-pointer shrink-0"
+      title="Cancelar"
+    >
+      <i data-lucide="x" class="w-4 h-4"></i>
+      <span>Cancelar</span>
+    </button>
+  </div>
+
+  {# ----- KPIs ↔ Form: mesma célula de grid (altura = max dos dois, sem reajuste) ----- #}
+  <div class="grid" x-cloak>
+    <div class="col-start-1 row-start-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 h-full content-start transition-[opacity,visibility,transform] duration-200 ease-out"
+         :class="showForms ? 'invisible opacity-0 -translate-x-4 pointer-events-none' : 'visible opacity-100 translate-x-0'">
+    <div class="dashboard-stat-card cursor-default">
+      <div class="flex justify-between items-start">
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-black text-on-surface/40 uppercase tracking-wide">Avisos enviados</span>
+          <p class="text-2xl font-black text-on-surface-strong">{{ kpis.total_avisos }}</p>
+        </div>
+        <div class="p-2 bg-accent/10 rounded-lg text-accent shrink-0">
+          <i data-lucide="mail" class="w-5 h-5"></i>
+        </div>
+      </div>
+      <span class="text-xs font-semibold text-on-surface/50">Mensagens criadas</span>
+    </div>
+    <div class="dashboard-stat-card cursor-default">
+      <div class="flex justify-between items-start">
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-black text-on-surface/40 uppercase tracking-wide">Destinatários</span>
+          <p class="text-2xl font-black text-primary">{{ kpis.total_copias }}</p>
+        </div>
+        <div class="p-2 bg-primary/10 rounded-lg text-primary shrink-0">
+          <i data-lucide="users" class="w-5 h-5"></i>
+        </div>
+      </div>
+      <span class="text-xs font-semibold text-on-surface/50">Cópias entregues</span>
+    </div>
+    <div class="dashboard-stat-card cursor-default">
+      <div class="flex justify-between items-start">
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-black text-on-surface/40 uppercase tracking-wide">Não lidos</span>
+          <p class="text-2xl font-black {% if kpis.nao_lidos > 0 %}text-amber-500{% else %}text-on-surface-strong{% endif %}">{{ kpis.nao_lidos }}</p>
+        </div>
+        <div class="p-2 bg-amber-500/10 rounded-lg text-amber-500 shrink-0">
+          <i data-lucide="eye-off" class="w-5 h-5"></i>
+        </div>
+      </div>
+      <span class="text-xs font-semibold text-on-surface/50">Cópias aguardando leitura</span>
+    </div>
+    <div class="dashboard-stat-card cursor-default">
+      <div class="flex justify-between items-start">
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-black text-on-surface/40 uppercase tracking-wide">Hoje</span>
+          <p class="text-2xl font-black text-success">{{ kpis.hoje }}</p>
+        </div>
+        <div class="p-2 bg-success/10 rounded-lg text-success shrink-0">
+          <i data-lucide="calendar" class="w-5 h-5"></i>
+        </div>
+      </div>
+      <span class="text-xs font-semibold text-on-surface/50">Enviados hoje</span>
+    </div>
+    </div>
+
+    <div class="col-start-1 row-start-1 transition-[opacity,visibility,transform] duration-200 ease-out"
+         :class="showForms ? 'visible opacity-100 translate-x-0' : 'invisible opacity-0 translate-x-4 pointer-events-none'">
+      <div class="bg-surface border border-outline rounded-radius p-4 shadow-xs">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="p-1.5 bg-accent/10 rounded-md text-accent shrink-0">
+            <i data-lucide="send" class="size-4"></i>
+          </div>
+          <span class="text-[13px] font-semibold text-on-surface">Novo aviso</span>
+        </div>
+
+      <form hx-post="/admin/avisos" hx-target="#content" hx-swap="innerHTML" hx-push-url="false" hx-indicator="#content"
+            x-data="{
+              destino: '{{ form.destino.value if form.destino is defined and form.destino.value else 'all' }}',
+              destino_id: '{{ form.destino_id.value if form.destino_id is defined and form.destino_id.value else '' }}',
+              users: {{ users | map(attribute='name') | list | tojson }},
+              usersFull: {{ users | map(attribute='name') | list | tojson }},
+              get previewNames() {
+                if (this.destino === 'all') return this.users.slice(0,3);
+                if (this.destino === 'group') {
+                  // tenta achar membros do grupo selecionado via mapa embutido
+                  const gm = {{ groups | map(attribute='name') | list | tojson }};
+                  return [];
+                }
+                return [];
+              }
+            }"
+            class="flex flex-col gap-3">
+
+        {% if form_error %}<div class="text-sm text-danger bg-danger/10 border border-danger/20 rounded p-2">{{ form_error }}</div>{% endif %}
+
+        <div class="grid grid-cols-1 md:grid-cols-[1fr_160px] gap-3">
+          <label class="flex flex-col gap-1">
+            <span class="text-[11px] font-medium text-on-surface-muted">Título *</span>
+            <input name="titulo" value="{{ form.titulo.value if form.titulo is defined else '' }}" class="input input-sm text-sm" placeholder="Título do aviso" required />
+            {% if form.titulo is defined and form.titulo.error %}<span class="text-xs text-danger">{{ form.titulo.error }}</span>{% endif %}
+          </label>
+          <label class="flex flex-col gap-1">
+            <span class="text-[11px] font-medium text-on-surface-muted">Nível</span>
+            <select name="nivel" class="select select-sm text-sm">
+              {% set nivel_val = form.nivel.value if form.nivel is defined and form.nivel.value else 'info' %}
+              <option value="info" {% if nivel_val=='info' %}selected{% endif %}>Info</option>
+              <option value="success" {% if nivel_val=='success' %}selected{% endif %}>Sucesso</option>
+              <option value="warning" {% if nivel_val=='warning' %}selected{% endif %}>Aviso</option>
+              <option value="danger" {% if nivel_val=='danger' %}selected{% endif %}>Crítico</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="flex flex-col gap-1">
+          <span class="text-[11px] font-medium text-on-surface-muted">Mensagem *</span>
+          <textarea name="mensagem" rows="3" class="textarea textarea-sm text-sm" placeholder="Mensagem do aviso" required>{{ form.mensagem.value if form.mensagem is defined else '' }}</textarea>
+          {% if form.mensagem is defined and form.mensagem.error %}<span class="text-xs text-danger">{{ form.mensagem.error }}</span>{% endif %}
+        </label>
+
+        <div class="flex flex-col gap-2">
+          <span class="text-[11px] font-medium text-on-surface-muted">Destinatário</span>
+          <div class="flex gap-4 items-center">
+            <label class="flex items-center gap-1.5 text-sm cursor-pointer"><input type="radio" name="destino" value="all" x-model="destino" class="radio radio-sm" /> Todos</label>
+            <label class="flex items-center gap-1.5 text-sm cursor-pointer"><input type="radio" name="destino" value="group" x-model="destino" class="radio radio-sm" /> Grupo</label>
+            <label class="flex items-center gap-1.5 text-sm cursor-pointer"><input type="radio" name="destino" value="user" x-model="destino" class="radio radio-sm" /> Usuário</label>
+          </div>
+          {% if form.destino is defined and form.destino.error %}<span class="text-xs text-danger">{{ form.destino.error }}</span>{% endif %}
+        </div>
+
+        <div x-show="destino === 'group'" x-cloak>
+          <label class="flex flex-col gap-1">
+            <span class="text-[11px] font-medium text-on-surface-muted">Grupo</span>
+            <select name="destino_id" class="select select-sm text-sm" :disabled="destino !== 'group'" x-model="destino_id">
+              <option value="">Selecione o grupo</option>
+              {% for g in groups %}
+              <option value="{{ g.name }}">{{ g.name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </div>
+        <div x-show="destino === 'user'" x-cloak>
+          <label class="flex flex-col gap-1">
+            <span class="text-[11px] font-medium text-on-surface-muted">Usuário</span>
+            <select name="destino_id" class="select select-sm text-sm" :disabled="destino !== 'user'">
+              <option value="">Selecione o usuário</option>
+              {% for u in users %}
+              <option value="{{ u.id }}" {% if form.destino_id is defined and form.destino_id.value == u.id|string %}selected{% endif %}>{{ u.name }} — {{ u.email }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </div>
+        <input type="hidden" name="destino_id" value="" :disabled="destino !== 'all'" x-show="destino === 'all'" />
+
+        {# Preview chips (ao vivo) #}
+        <div class="rounded-md border border-dashed border-outline bg-surface-alt/40 px-3 py-2">
+          <span class="text-[10px] font-semibold uppercase tracking-wide text-on-surface/40">Prévia de destinatários</span>
+          <div class="flex flex-wrap items-center gap-1.5 mt-1.5" x-show="destino === 'all'">
+            {% for u in users[:3] %}
+            <span class="px-1.5 py-0.5 text-[11px] rounded bg-surface border border-outline font-medium">{{ u.name }}</span>
+            {% endfor %}
+            {% if users|length > 3 %}
+            <span class="px-1.5 py-0.5 text-[11px] rounded bg-accent/10 text-accent font-semibold border border-accent/20">+{{ users|length - 3 }}</span>
+            {% endif %}
+            <span class="text-[11px] text-on-surface/50 ml-1">{{ users|length }} usuário{{ 's' if users|length != 1 else '' }} · Todos</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5 mt-1.5" x-show="destino === 'group'">
+            <span class="text-[11px] text-on-surface/60" x-text="destino_id ? 'Grupo ' + destino_id : 'Selecione um grupo'"></span>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5 mt-1.5" x-show="destino === 'user'">
+            <span class="text-[11px] text-on-surface/60">Aviso individual — selecione o usuário acima</span>
+          </div>
+        </div>
+
+        {% if form.destino_id is defined and form.destino_id.error %}<span class="text-xs text-danger">{{ form.destino_id.error }}</span>{% endif %}
+
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="submit" class="btn btn-sm btn-primary">
+            <i data-lucide="send" class="w-4 h-4"></i> Enviar aviso
+            <span class="htmx-indicator loading loading-spinner loading-xs"></span>
+          </button>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+
+  {# ----- Inbox (enviados) ----- #}
+  {% block avisos_table %}
+  <div id="table-paged" class="flex flex-col flex-1 min-h-0 gap-3">
+    <div
+      id="table-container"
+      class="w-full h-full rounded-radius border border-outline flex flex-col bg-surface overflow-hidden"
+    >
+      <div class="flex-1 min-h-0 overflow-auto w-full">
+        <table id="items-table" class="table-list">
+          <colgroup>
+            <col class="w-28 border-r border-outline">
+            <col class="w-auto border-r border-outline">
+            <col class="w-[22rem] border-r border-outline">
+            <col class="w-20 border-r border-outline">
+            <col class="w-28">
+          </colgroup>
+          <thead>
+            <tr>
+              {{ plain_th('Data') }}
+              {{ plain_th('Assunto') }}
+              {{ plain_th('Destinatários') }}
+              {{ plain_th('Nível', 'center') }}
+              {{ plain_th('Leitura', 'center', 'border-r-0') }}
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            {% if enriched and enriched|length > 0 %}
+              {% for e in enriched %}
+              {% set aviso = e.aviso %}
+              <tr class="align-top" x-data="{ open: false }">
+                <td class="whitespace-nowrap align-top">
+                  <span class="text-xs font-medium">{{ aviso.created_at.strftime('%d/%m %H:%M') if aviso.created_at else '' }}</span>
+                  <span class="block text-[10px] text-on-surface/40 truncate max-w-[7rem]" title="{{ e.remetente_nome }}">{{ e.remetente_nome }}</span>
+                </td>
+                <td class="align-top">
+                  <div class="flex flex-col gap-0.5 min-w-0">
+                    <span class="text-sm font-semibold truncate max-w-[28rem]" title="{{ aviso.titulo }}">{{ aviso.titulo }}</span>
+                    <span class="text-xs text-on-surface/60 line-clamp-2 max-w-[28rem]" title="{{ aviso.mensagem }}">{{ aviso.mensagem }}</span>
+                    <button type="button" @click="open = !open" class="text-[11px] text-accent hover:underline self-start mt-0.5 flex items-center gap-1">
+                      <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" :class="{ 'rotate-180': open }"></i>
+                      <span x-text="open ? 'ocultar' : 'ver mensagem'"></span>
+                    </button>
+                    <div x-show="open" x-cloak x-transition.opacity.duration.150 class="mt-1.5 text-sm bg-surface-alt/50 border border-outline/50 rounded p-2 whitespace-pre-wrap break-words max-w-[28rem]">{{ aviso.mensagem }}</div>
+                  </div>
+                </td>
+                <td class="align-top">
+                  <div class="flex flex-wrap items-center gap-1">
+                    <span class="inline-flex px-1.5 py-0.5 text-[10px] font-semibold rounded border bg-surface-alt border-outline">{{ e.dest_label }}</span>
+                    {% for name in e.preview_names %}
+                    <span class="px-1.5 py-0.5 text-[11px] rounded bg-surface border border-outline font-medium truncate max-w-[7rem]" title="{{ name }}">{{ name }}</span>
+                    {% endfor %}
+                    {% if e.resto > 0 %}
+                    <span class="px-1.5 py-0.5 text-[11px] rounded bg-accent/10 text-accent font-semibold border border-accent/20">+{{ e.resto }}</span>
+                    {% endif %}
+                  </div>
+                  <span class="text-[11px] text-on-surface/40 mt-1 block">{{ e.total }} destinatário{{ 's' if e.total != 1 else '' }}</span>
+                </td>
+                <td class="text-center align-top">
+                  {% if aviso.nivel == 'danger' %}<span class="inline-flex px-2 py-0.5 text-[11px] font-semibold rounded bg-danger/10 text-danger">Crítico</span>
+                  {% elif aviso.nivel == 'warning' %}<span class="inline-flex px-2 py-0.5 text-[11px] font-semibold rounded bg-warning/10 text-warning">Aviso</span>
+                  {% elif aviso.nivel == 'success' %}<span class="inline-flex px-2 py-0.5 text-[11px] font-semibold rounded bg-success/10 text-success">Sucesso</span>
+                  {% else %}<span class="inline-flex px-2 py-0.5 text-[11px] font-semibold rounded bg-surface-alt">Info</span>
+                  {% endif %}
+                </td>
+                <td class="text-center align-top">
+                  <div class="flex flex-col items-center gap-1">
+                    <span class="text-xs font-semibold {% if e.nao_lidas > 0 %}text-amber-600{% else %}text-success{% endif %}">{{ e.lidas }}/{{ e.total }}</span>
+                    <div class="w-16 h-1.5 bg-outline/20 rounded-full overflow-hidden">
+                      <div class="h-full rounded-full {% if e.pct == 100 %}bg-success{% elif e.pct == 0 %}bg-outline/30{% else %}bg-amber-500{% endif %}" style="width: {{ e.pct }}%"></div>
+                    </div>
+                    <span class="text-[10px] text-on-surface/40">{{ e.pct }}% lidos</span>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="5" class="!p-0 h-full border-none align-middle">
+                <div class="table-empty-state">
+                  <i data-lucide="inbox" class="w-8 h-8 opacity-20"></i>
+                  <div class="text-center">
+                    <p class="font-medium text-sm">Nenhum aviso enviado ainda</p>
+                    <p class="text-[11px]">Use "Novo aviso" para comunicar a equipe.</p>
+                  </div>
+                  <button type="button" @click="showForms = true" class="nav-create-btn mt-1"><i data-lucide="plus"></i><span>Novo aviso</span></button>
+                </div>
+              </td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+      <div id="pagination-controls" class="flex items-center justify-between px-4 py-3 bg-surface-alt border-t border-outline text-xs flex-none">
+        <div class="text-on-surface/70">
+          {% if avisos_result.total_count > 0 %}
+            Mostrando <strong>{{ avisos_result.start_item }} - {{ avisos_result.end_item }}</strong> de <strong>{{ avisos_result.total_count }}</strong>
+          {% else %}Nenhum resultado{% endif %}
+        </div>
+        {% if avisos_result.total_pages > 1 %}
+        <div class="flex items-center gap-2">
+          <button
+            {% if avisos_result.has_previous %}
+            hx-get="/admin/avisos/items"
+            hx-target="#table-paged" hx-swap="innerHTML" hx-indicator="#list-loading"
+            hx-vals='{"page":"{{ avisos_result.page - 1 }}"}'
+            {% else %}disabled{% endif %}
+            class="p-1 hover:bg-outline/20 rounded disabled:opacity-30">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          <span class="px-3 py-1 bg-surface rounded border border-outline font-bold">{{ avisos_result.page }} / {{ avisos_result.total_pages }}</span>
+          <button
+            {% if avisos_result.has_next %}
+            hx-get="/admin/avisos/items"
+            hx-target="#table-paged" hx-swap="innerHTML" hx-indicator="#list-loading"
+            hx-vals='{"page":"{{ avisos_result.page + 1 }}"}'
+            {% else %}disabled{% endif %}
+            class="p-1 hover:bg-outline/20 rounded disabled:opacity-30">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endblock avisos_table %}
+</div>
+{% endblock content %}

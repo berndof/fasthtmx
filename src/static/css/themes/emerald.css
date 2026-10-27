@@ -1,0 +1,59 @@
+/* Emerald Light — Verde natureza, fresco e profissional */
+:root[data-theme="emerald-light"],
+[data-theme="emerald-light"] {
+    --theme-surface-deep:    #ecfdf5;
+    --theme-surface:         #ffffff;
+    --theme-surface-alt:     #f0fdf4;
+    --theme-surface-raised:  #dcfce7;
+    --theme-surface-overlay: #d1fae5;
+
+    --theme-on-surface:        #1f4d3a;
+    --theme-on-surface-strong: #052e16;
+    --theme-on-surface-muted:  #4d7c65;
+    --theme-on-surface-faint:  #86b89e;
+
+    --theme-primary:    #0891b2;
+    --theme-on-primary: #ffffff;
+    --theme-secondary:    #0284c7;
+    --theme-on-secondary: #ffffff;
+
+    --theme-outline:        #a7f3d0;
+    --theme-outline-strong: #6ee7b7;
+    --theme-outline-muted:  #f0f4f8;
+    --theme-outline-soft:   #e8edf3;
+    --theme-outline-faint:  #f3f6f9;
+    --theme-outline-subtle: #f6f8fa;
+
+    --theme-accent:    #059669;
+    --theme-on-accent: #ffffff;
+}
+
+/* Emerald Dark — Verde profundo, denso, quente */
+:root[data-theme="emerald-dark"],
+[data-theme="emerald-dark"] {
+    --theme-surface-deep:    #050f0a;
+    --theme-surface:         #0b1a12;
+    --theme-surface-alt:     #111f17;
+    --theme-surface-raised:  #17281e;
+    --theme-surface-overlay: #1c3024;
+
+    --theme-on-surface:        #7fb49a;
+    --theme-on-surface-strong: #d4eddf;
+    --theme-on-surface-muted:  #5a8a72;
+    --theme-on-surface-faint:  #3d5c4a;
+
+    --theme-primary:    #22d4ff;
+    --theme-on-primary: #05140f;
+    --theme-secondary:    #38bdf8;
+    --theme-on-secondary: #082f49;
+
+    --theme-outline:        #1e3d2c;
+    --theme-outline-strong: #246d56;
+    --theme-outline-muted:  #103a2c;
+    --theme-outline-soft:   #144636;
+    --theme-outline-faint:  #0f3529;
+    --theme-outline-subtle: #0e3126;
+
+    --theme-accent:    #34d399;
+    --theme-on-accent: #052e16;
+}

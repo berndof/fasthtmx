@@ -1,0 +1,49 @@
+{% extends "layout/template.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-surface-900">Sessões Ativas</h1>
+        <p class="text-sm text-surface-500">Gerencie as sessões ativas nos seus dispositivos conectados.</p>
+    </div>
+
+    <div class="bg-surface-0 shadow rounded-lg divide-y divide-surface-200">
+        {% for session in sessions %}
+        <div class="p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-surface-100 rounded-full">
+                    <svg class="w-5 h-5 text-surface-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <p class="font-medium text-surface-900">{{ session.user_agent or "Dispositivo Desconhecido" }}</p>
+                        {% if current_jti and session.id|string == current_jti|string %}
+                        <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-800 rounded-full">esta sessão</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs text-surface-500">IP: {{ session.ip or "N/A" }} • Última atividade: {{ session.last_seen_at or session.created_at or "N/A" }}</p>
+                </div>
+            </div>
+
+            <div>
+                {% if not (current_jti and session.id|string == current_jti|string) %}
+                <button
+                    hx-post="/sessions/revoke/{{ session.id }}"
+                    hx-swap="none"
+                    class="btn btn-sm btn-outline text-red-600 hover:bg-red-50"
+                >
+                    Revogar
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="p-6 text-center text-surface-500">
+            Nenhuma sessão encontrada.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

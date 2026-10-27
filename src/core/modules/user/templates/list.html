@@ -1,0 +1,122 @@
+{% extends "layout/template.html" %}
+{% from "partials/list/macros.html" import sortable_th, plain_th, empty_state, pagination %}
+
+{% block content %}
+<div class="content-frame overflow-y-auto">
+  <div class="content-header">
+    <div class="title">
+      <div class="icon">
+        <i data-lucide="user-round"></i>
+      </div>
+      <div>
+        <h2>Usuários</h2>
+        <p>Gerenciamento e listagem</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      {{ search_bar(list_result, data_url, placeholder='Buscar usuários...') }}
+      {{ soft_btn('/user/create', label='Novo', icon='circle-plus') }}
+    </div>
+  </div>
+
+  <div class="relative flex flex-col flex-1 min-h-0">
+    <div id="list-loading" class="htmx-indicator absolute inset-0 z-20 flex items-center justify-center bg-surface/60 backdrop-blur-[1px] rounded-radius">
+      <span class="loading loading-spinner loading-md text-primary"></span>
+    </div>
+
+    <div id="table-paged" class="flex flex-col flex-1 h-full">
+    {% block table %}
+    {% from "partials/list/macros.html" import sortable_th, plain_th, empty_state, pagination %}
+    <div id="table-container"
+         class="w-full h-full rounded-radius border border-outline transition-all duration-200 ease-in-out flex flex-col bg-surface overflow-hidden">
+
+      <div class="flex-1 min-h-0 overflow-auto w-full">
+        <table id="items-table" class="table-list">
+            <colgroup>
+              <col class="w-14 text-center border-r border-outline">
+              <col class="w-[220px] border-r border-outline">
+              <col class="w-auto border-r border-outline">
+              <col class="w-[220px] border-r border-outline">
+              <col class="w-32 text-center">
+            </colgroup>
+
+            <thead>
+              <tr class="justify-between">
+                {{ plain_th('#', 'center') }}
+                {{ sortable_th('first_name', 'Nome', list_result, data_url) }}
+                {{ sortable_th('email', 'Email', list_result, data_url) }}
+                {{ plain_th('Grupos') }}
+                {{ plain_th('Ações', 'center', 'border-r-0') }}
+              </tr>
+            </thead>
+
+            <tbody id="table-body">
+              {% block items %}
+                {% from "partials/list/macros.html" import empty_state %}
+                {% if list_result.items %}
+                  {% for item in list_result.items %}
+                  <tr id="user-{{ item.id }}">
+                    <td class="text-center">
+                      <span class="inline-flex items-center justify-center min-w-6 h-5 px-1.5 text-[10px] font-medium bg-surface-alt/70 text-on-surface/60 rounded-full">
+                        {{ (list_result.page - 1) * list_result.per_page + loop.index }}
+                      </span>
+                    </td>
+
+                    <td class="px-3 py-2">
+                      <span class="block truncate font-medium text-on-surface" title="{{ item.name }}">{{ item.name }}</span>
+                    </td>
+
+                    <td class="px-3 py-2">
+                      <span class="block truncate" title="{{ item.email }}">{{ item.email }}</span>
+                    </td>
+
+                    <td class="px-3 py-2">
+                      {% if item.groups %}
+                        {% for group in item.groups %}
+                        <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-primary/10 text-primary border border-primary/20 mr-1 mb-1">{{ group.name }}</span>
+                        {% endfor %}
+                      {% endif %}
+                    </td>
+
+                    <td class="px-3 py-2 text-center">
+                      <div class="flex justify-center gap-3">
+                        <button
+                          hx-get="/user/view/{{ item.id }}"
+                          hx-target="#content"
+                          hx-push-url="true" hx-indicator="#content"
+                          class="text-on-surface/70 hover:text-secondary transition-colors"
+                          title="Ver">
+                          <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+
+                        <button type="button"
+                          @click="$dispatch('open-delete-modal', { id: '{{ item.id }}', name: '{{ item.name }}' })"
+                          class="text-on-surface/70 hover:text-error transition-colors"
+                          title="Excluir">
+                          <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                {% else %}
+                  {{ empty_state('search-x', 'Nenhum usuário encontrado', 'Tente ajustar seus filtros ou cadastre um novo.', 5) }}
+                {% endif %}
+              {% endblock items %}
+            </tbody>
+          </table>
+        </div>
+
+      {% block pagination %}
+        {% from "partials/list/macros.html" import pagination %}
+        {{ pagination(list_result, data_url) }}
+      {% endblock pagination %}
+    </div>
+    {% endblock table %}
+    </div>
+  </div>
+
+  {% include "partials/list/delete-modal.html" %}
+</div>
+{% endblock content %}

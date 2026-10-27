@@ -1,0 +1,188 @@
+{% extends "layout/template.html" %}
+{% from "partials/list/macros.html" import search_bar, sortable_th, plain_th, footer_info, pagination, empty_state %}
+
+{% block content %}
+<div class="content-wrapper" x-data="{
+    deleteModalOpen: false,
+    deleteId: null,
+    deleteName: '',
+    deleteUrl: '',
+    blocked: false,
+    blockedHtml: '',
+    loadingBlockers: false,
+    async openDeleteModal(id, name) {
+        this.deleteId = id;
+        this.deleteName = name;
+        this.deleteUrl = `/projetos/${id}`;
+        this.blocked = false;
+        this.blockedHtml = '';
+        this.loadingBlockers = true;
+        this.deleteModalOpen = true;
+        try {
+            const resp = await fetch(`/projetos/${id}/blockers`);
+            const html = await resp.text();
+            if (html.trim().length > 0) {
+                this.blocked = true;
+                this.blockedHtml = html;
+            }
+        } finally {
+            this.loadingBlockers = false;
+        }
+    }
+}">
+    <div class="content-header flex items-center justify-between gap-4">
+        <div>
+            <h1 class="text-xl font-bold text-on-surface-strong flex items-center gap-2">
+                <i data-lucide="folder-kanban" class="size-5 text-primary"></i>
+                Projetos (Showcase CRUD + Softnav)
+            </h1>
+            <p class="text-xs text-on-surface/60 mt-0.5">
+                Exemplo completo usando <code>ListQuery</code>, <code>parse_form</code>, <code>subpage_response</code> e bloqueio de exclusão.
+            </p>
+        </div>
+
+        <a href="/projetos/create"
+           hx-get="/projetos/create"
+           hx-target="#content"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           class="btn bg-primary text-on-primary px-4 py-2 rounded-radius text-sm font-semibold inline-flex items-center gap-2">
+            <i data-lucide="plus" class="size-4"></i>
+            Novo Projeto
+        </a>
+    </div>
+
+    <div class="main-col-container">
+        <div class="full-col flex flex-col gap-3 p-4">
+            <div class="flex items-center justify-between gap-3">
+                {{ search_bar(list_result, data_url|default('/projetos/list'), placeholder='Buscar por nome, código, categoria ou tag...') }}
+            </div>
+
+            {% block table %}
+            <div id="table-paged" data-url="{{ data_url|default('/projetos/list') }}" class="flex flex-col flex-1 min-h-0">
+                <div class="overflow-x-auto border border-outline rounded-radius bg-surface">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-outline bg-surface-alt/60 text-xs uppercase text-on-surface/70">
+                                {{ sortable_th("codigo", "Código", list_result, data_url|default('/projetos/list')) }}
+                                {{ sortable_th("nome", "Projeto", list_result, data_url|default('/projetos/list')) }}
+                                {{ sortable_th("categoria", "Categoria", list_result, data_url|default('/projetos/list')) }}
+                                {{ sortable_th("orcamento", "Orçamento", list_result, data_url|default('/projetos/list')) }}
+                                {{ plain_th("Tarefas") }}
+                                {{ plain_th("Ações") }}
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-outline/50 text-sm">
+                            {% for item in list_result.items %}
+                            {% set pendentes = item.tarefas | selectattr('concluida', 'equalto', false) | list | length %}
+                            <tr class="hover:bg-surface-alt/40 transition-colors">
+                                <td class="px-4 py-3 font-mono text-xs font-semibold text-primary">
+                                    {{ item.codigo }}
+                                    {% if item.prioritario %}
+                                    <span class="ml-1 px-1.5 py-0.5 text-[10px] rounded bg-warning/15 text-warning font-sans">Prioritário</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 font-medium text-on-surface-strong">
+                                    <a href="/projetos/view/{{ item.id }}"
+                                       hx-get="/projetos/view/{{ item.id }}"
+                                       hx-target="#content"
+                                       hx-swap="innerHTML"
+                                       hx-push-url="true"
+                                       class="hover:text-primary hover:underline">
+                                        {{ item.nome }}
+                                    </a>
+                                    {% if item.tag_list %}
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        {% for tag in item.tag_list %}
+                                        <span class="px-1.5 py-0.2 text-[10px] rounded bg-surface-alt border border-outline text-on-surface/70">{{ tag }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 text-on-surface/80">{{ item.categoria }}</td>
+                                <td class="px-4 py-3 font-mono text-xs text-on-surface-strong">R$ {{ item.orcamento | brl }}</td>
+                                <td class="px-4 py-3 text-xs">
+                                    <span class="px-2 py-0.5 rounded-full {% if pendentes > 0 %}bg-warning/15 text-warning{% else %}bg-success/15 text-success{% endif %} font-semibold">
+                                        {{ item.tarefas | length }} ({{ pendentes }} pend.)
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-2">
+                                        <a href="/projetos/view/{{ item.id }}"
+                                           hx-get="/projetos/view/{{ item.id }}"
+                                           hx-target="#content"
+                                           hx-swap="innerHTML"
+                                           hx-push-url="true"
+                                           class="px-2.5 py-1 rounded border border-outline text-xs hover:bg-surface-alt inline-flex items-center gap-1">
+                                            <i data-lucide="eye" class="size-3.5"></i> Abrir
+                                        </a>
+                                        <button type="button"
+                                                @click="openDeleteModal('{{ item.id }}', '{{ item.nome | e }}')"
+                                                class="px-2.5 py-1 rounded border border-danger/40 text-danger text-xs hover:bg-danger/10 inline-flex items-center gap-1 cursor-pointer">
+                                            <i data-lucide="trash-2" class="size-3.5"></i> Excluir
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            {{ empty_state(icon="folder-kanban", title="Nenhum projeto encontrado", hint="Cadastre um novo projeto para testar o showcase.", colspan=6) }}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {{ pagination(list_result, data_url|default('/projetos/list')) }}
+            </div>
+            {% endblock table %}
+        </div>
+    </div>
+
+    {# Modal de Exclusão / Bloqueadores #}
+    <div x-show="deleteModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+        <div @click.away="deleteModalOpen = false" class="w-full max-w-md rounded-radius border border-outline bg-surface p-6 shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-bold text-on-surface-strong flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="size-5 text-warning"></i>
+                    <span x-text="blocked ? 'Exclusão Bloqueada' : 'Confirmar Exclusão'"></span>
+                </h3>
+                <button @click="deleteModalOpen = false" class="text-on-surface/50 hover:text-on-surface">
+                    <i data-lucide="x" class="size-4"></i>
+                </button>
+            </div>
+
+            <template x-if="loadingBlockers">
+                <p class="text-sm text-on-surface/70 py-4">Verificando vínculos ativos...</p>
+            </template>
+
+            <template x-if="!loadingBlockers && blocked">
+                <div>
+                    <div x-html="blockedHtml" class="max-h-64 overflow-y-auto"></div>
+                    <div class="mt-4 flex justify-end">
+                        <button type="button" @click="deleteModalOpen = false" class="px-4 py-2 rounded-radius border border-outline text-xs font-semibold">
+                            Entendi
+                        </button>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="!loadingBlockers && !blocked">
+                <div>
+                    <p class="text-sm text-on-surface/80">
+                        Tem certeza que deseja excluir o projeto <strong x-text="deleteName"></strong>?
+                    </p>
+                    <div class="mt-5 flex justify-end gap-2">
+                        <button type="button" @click="deleteModalOpen = false" class="px-4 py-2 rounded-radius border border-outline text-xs font-semibold">
+                            Cancelar
+                        </button>
+                        <button type="button"
+                                @click="htmx.ajax('DELETE', deleteUrl, {target: '#table-paged', swap: 'outerHTML'}); deleteModalOpen = false;"
+                                class="px-4 py-2 rounded-radius bg-danger text-white text-xs font-semibold cursor-pointer">
+                            Confirmar Exclusão
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,6 +1,4 @@
 # https://plainenglish.io/python/better-python-singleton-with-a-metaclass
-
-
 class Singleton(type):
     _instances = {}
 

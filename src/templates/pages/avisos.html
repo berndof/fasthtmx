@@ -1,0 +1,125 @@
+{% extends "layout/template.html" %}
+{% from "partials/list/macros.html" import plain_th %}
+
+{% block content %}
+<div class="content-frame overflow-y-auto">
+  <div class="content-header">
+    <div class="title flex-1 min-w-0">
+      <div class="icon">
+        <i data-lucide="inbox"></i>
+      </div>
+      <div class="min-w-0">
+        <h2>Caixa de entrada</h2>
+        <p>Avisos da equipe · turno atual</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-on-surface/50 hidden sm:inline">{{ unread_count }} não lida{{ 's' if unread_count != 1 else '' }}</span>
+      <button type="button"
+              hx-post="/api/notificacoes/read"
+              hx-target="#content"
+              hx-swap="innerHTML"
+              hx-push-url="false"
+              class="btn btn-sm btn-ghost border border-outline text-xs"
+              title="Marcar todas como lidas">
+        <i data-lucide="check-check" class="w-4 h-4"></i> Lidas
+      </button>
+    </div>
+  </div>
+
+  <div class="px-2 pb-2 flex gap-1">
+    <a hx-get="/avisos?filtro=todos"
+       hx-target="#content" hx-swap="innerHTML" hx-push-url="true" hx-indicator="#content"
+       href="/avisos?filtro=todos"
+       class="tab-btn {% if filtro == 'todos' %}tab-btn-active{% else %}tab-btn-inactive{% endif %}">
+      Todos <span class="ml-1 text-[11px] opacity-60">({{ total_count }})</span>
+    </a>
+    <a hx-get="/avisos?filtro=nao_lidas"
+       hx-target="#content" hx-swap="innerHTML" hx-push-url="true" hx-indicator="#content"
+       href="/avisos?filtro=nao_lidas"
+       class="tab-btn {% if filtro == 'nao_lidas' %}tab-btn-active{% else %}tab-btn-inactive{% endif %}">
+      Não lidas <span class="ml-1 text-[11px] opacity-60">({{ unread_count }})</span>
+    </a>
+  </div>
+
+  {% block inbox_table %}
+  <div id="table-paged" class="flex flex-col flex-1 min-h-0 gap-3">
+    <div id="table-container" class="w-full h-full rounded-radius border border-outline flex flex-col bg-surface overflow-hidden">
+      <div class="flex-1 min-h-0 overflow-auto w-full">
+        <table id="items-table" class="table-list">
+          <colgroup>
+            <col class="w-28 border-r border-outline">
+            <col class="w-36 border-r border-outline">
+            <col class="w-auto border-r border-outline">
+            <col class="w-20 border-r border-outline">
+            <col class="w-24">
+          </colgroup>
+          <thead>
+            <tr>
+              {{ plain_th('Data') }}
+              {{ plain_th('Remetente') }}
+              {{ plain_th('Assunto') }}
+              {{ plain_th('Nível', 'center') }}
+              {{ plain_th('Ações', 'center', 'border-r-0') }}
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            {% if inbox_items and inbox_items|length > 0 %}
+              {% for row in inbox_items %}
+              {% set n = row.n %}{% set aviso = row.aviso %}{% set remetente_nome = row.remetente_nome %}
+              {% include "partials/avisos-row.html" %}
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="5" class="!p-0 h-full border-none align-middle">
+                <div class="table-empty-state">
+                  <i data-lucide="inbox" class="w-8 h-8 opacity-20"></i>
+                  <div class="text-center">
+                    {% if filtro == 'nao_lidas' %}
+                    <p class="font-medium text-sm">Nenhum aviso não lido</p>
+                    <p class="text-[11px]">Tudo em dia para este turno.</p>
+                    {% else %}
+                    <p class="font-medium text-sm">Caixa vazia</p>
+                    <p class="text-[11px]">Avisos da equipe aparecerão aqui.</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+      <div id="pagination-controls" class="flex items-center justify-between px-4 py-3 bg-surface-alt border-t border-outline text-xs flex-none">
+        <div class="text-on-surface/70">
+          {% if result.total_count > 0 %}
+            Mostrando <strong>{{ result.start_item }} - {{ result.end_item }}</strong> de <strong>{{ result.total_count }}</strong>
+          {% else %}Nenhum resultado{% endif %}
+        </div>
+        {% if result.total_pages > 1 %}
+        <div class="flex items-center gap-2">
+          <button
+            {% if result.has_previous %}
+            hx-get="/avisos/items?filtro={{ filtro }}"
+            hx-target="#table-paged" hx-swap="innerHTML" hx-indicator="#list-loading"
+            hx-vals='{"page":"{{ result.page - 1 }}","filtro":"{{ filtro }}"}'
+            {% else %}disabled{% endif %}
+            class="p-1 hover:bg-outline/20 rounded disabled:opacity-30">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          <span class="px-3 py-1 bg-surface rounded border border-outline font-bold">{{ result.page }} / {{ result.total_pages }}</span>
+          <button
+            {% if result.has_next %}
+            hx-get="/avisos/items?filtro={{ filtro }}"
+            hx-target="#table-paged" hx-swap="innerHTML" hx-indicator="#list-loading"
+            hx-vals='{"page":"{{ result.page + 1 }}","filtro":"{{ filtro }}"}'
+            {% else %}disabled{% endif %}
+            class="p-1 hover:bg-outline/20 rounded disabled:opacity-30">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endblock inbox_table %}
+</div>
+{% endblock content %}

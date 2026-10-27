@@ -1,0 +1,101 @@
+@layer content {
+    .content-border {
+        @apply
+        border border-outline
+        rounded-radius
+        w-full min-w-0
+        relative overflow-hidden
+        flex-1
+        ;
+        transition: border-color 200ms ease;
+    }
+
+    .content-container {
+        @apply
+            w-full h-full
+            rounded-radius
+            bg-surface
+        ;
+        transition: background-color 200ms ease;
+    }
+
+    #content {
+        @apply
+        p-2
+        w-full
+        z-1000
+        h-full
+        ;
+
+        & .content-frame {
+            @apply
+                flex flex-col
+                gap-4 px-2 py-2
+                w-full h-full
+                min-h-0
+            ;
+
+            & .content-header {
+                @apply
+                    flex flex-row
+                    items-center justify-between
+                    gap-4 h-10
+                ;
+
+                & .split-col {
+                    @apply flex-1 w-full;
+                };
+
+                & .title {
+                    @apply
+                        transition-all duration-200 ease-in-out
+                        flex items-center gap-3
+                    ;
+                    & svg {
+                        @apply
+                            transition-all duration-200 ease-in-out
+                            text-primary
+                            size-6
+                        }
+                    & .icon {
+                        @apply
+                            transition-all duration-200 ease-in-out
+                            px-2 rounded-radius
+                        }
+                    & h2 {
+                        @apply
+                            text-xl font-bold
+                            text-on-surface-strong
+                            leading-none
+                            transition-all duration-200 ease-in-out
+                        }
+                    & p {
+                        @apply
+                            transition-all duration-200 ease-in-out
+                            text-xs text-on-surface-muted mt-1 min-h-[1rem]
+                        }
+                }
+            };
+
+            & .content-row {
+                @apply
+                    flex flex-row h-full gap-4 flex-1 min-h-0
+                ;
+
+                & .half-col {
+                    @apply
+                        flex flex-col flex-1 gap-4 max-w-1/2 min-h-0
+                    ;
+                };
+            };
+        }
+
+        & .content-canvas {
+            @apply w-full h-full
+        }
+
+        .form {
+            @apply w-full flex flex-col gap-4 p-1 flex-1 min-h-0;
+        }
+    };
+}

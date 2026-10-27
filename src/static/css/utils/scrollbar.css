@@ -1,0 +1,31 @@
+/* Scrollbar global + variantes — evita flash branco no F5 e na transição claro/escuro */
+html,
+body,
+.thin-scrollbar,
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-outline) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-outline);
+    border-radius: 9999px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+.thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-outline) transparent;
+}

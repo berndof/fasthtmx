@@ -1,5 +1,7 @@
 import asyncio
+import sys
 from logging.config import fileConfig
+from pathlib import Path
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -7,50 +9,35 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+if config.config_file_name is not None and not config.attributes.get("configure_logger", False):
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from core.models import BasePGModel, BaseSqliteModel  # noqa: E402
-from core.loader import registry
-from core.settings import POSTGRES_DB_URL, SQLITE_DB_URL
+from core.loader import loaderRegistry  # noqa: E402
+from core.models import BaseSQLModel  # noqa: E402
 
-
-registry.load_models()
-x_args = context.get_x_argument(as_dictionary=True)
-db_name = x_args.get("db", "pg")
-
-
-def get_metadata(db_name):
-    mapp = {"pg": BasePGModel.metadata, "sqlite": BaseSqliteModel.metadata}
-
-    return mapp[db_name]
-
-
-def get_db_url(db_name):
-    mapp = {"pg": POSTGRES_DB_URL, "sqlite": SQLITE_DB_URL}
-
-    return mapp[db_name]
-
-
-target_metadata = get_metadata(db_name)
-db_url = get_db_url(db_name)
-config.set_main_option("sqlalchemy.url", db_url)
-
+loaderRegistry.discover_sqlmodels()
+target_metadata = BaseSQLModel.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+from core.settings import DB_URL  # noqa: E402
+
+config.set_main_option("sqlalchemy.url", DB_URL)
 
 
 def run_migrations_offline() -> None:
@@ -65,13 +52,14 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-
     url = config.get_main_option("sqlalchemy.url")
+    is_sqlite = bool(url and "sqlite" in url)
     context.configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        render_as_batch=is_sqlite,
     )
 
     with context.begin_transaction():
@@ -79,7 +67,12 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    is_sqlite = connection.dialect.name == "sqlite"
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        render_as_batch=is_sqlite,
+    )
 
     with context.begin_transaction():
         context.run_migrations()
@@ -90,11 +83,9 @@ async def run_async_migrations() -> None:
     and associate a connection with the context.
 
     """
-    section = config.get_section(config.config_ini_section, {})
-    section["sqlalchemy.url"] = db_url
 
     connectable = async_engine_from_config(
-        section,
+        config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

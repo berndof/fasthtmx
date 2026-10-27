@@ -1,0 +1,44 @@
+<div class="p-4 flex flex-col gap-4 overflow-y-auto h-full text-sm">
+  <div class="flex items-center gap-2 border-b border-outline pb-2.5">
+    <i data-lucide="layers" class="size-4 text-primary"></i>
+    <h3 class="font-semibold text-on-surface-strong">Arquitetura em Duas Camadas</h3>
+  </div>
+
+  <div class="grid grid-cols-1 gap-3 text-xs">
+    <div class="p-3 rounded-radius border border-outline bg-surface-alt/40 space-y-1">
+      <div class="font-semibold text-on-surface-strong flex items-center gap-1.5">
+        <i data-lucide="cpu" class="size-3.5 text-accent"></i>
+        <code>src/core/</code> (Motor & Contratos)
+      </div>
+      <p class="text-on-surface/70">
+        Contém <code>ContextRouter</code>, <code>parse_form</code> + <code>FormSchema</code>, <code>ListQuery</code> + <code>ListResult</code>,
+        <code>AbstractModelService</code> (savepoints + audit log), autenticação JWT + sessões revogáveis, SSE e temas SSR.
+      </p>
+    </div>
+
+    <div class="p-3 rounded-radius border border-outline bg-surface-alt/40 space-y-1">
+      <div class="font-semibold text-on-surface-strong flex items-center gap-1.5">
+        <i data-lucide="layout-template" class="size-3.5 text-accent"></i>
+        <code>src/core/templates/</code> vs <code>src/templates/</code>
+      </div>
+      <p class="text-on-surface/70">
+        Os layouts estruturais (<code>core/base_shell.html</code>) e macros (<code>macros/softnav.html</code>, <code>macros/subpage.html</code>,
+        <code>macros/list.html</code>, <code>macros/forms.html</code>) vivem no core, enquanto o projeto customiza livremente
+        <code>layout/template.html</code>, <code>partials/sidebar.html</code> e <code>partials/header.html</code>.
+      </p>
+    </div>
+
+    <div class="p-3 rounded-radius border border-outline bg-surface-alt/40 space-y-1">
+      <div class="font-semibold text-on-surface-strong flex items-center gap-1.5">
+        <i data-lucide="route" class="size-3.5 text-accent"></i>
+        Convenção de Rotas no <code>ContextRouter</code>
+      </div>
+      <ul class="list-disc list-inside text-on-surface/70 space-y-1">
+        <li><code>dynamic_template_response</code>: renderiza página cheia no F5 ou apenas <code>{% raw %}{% block content %}{% endraw %}</code> via HTMX.</li>
+        <li><code>list_response</code>: renderiza <code>list.html</code> na navegação inicial ou apenas <code>#table-paged</code> na paginação/busca.</li>
+        <li><code>subpage_response</code>: entrega o fragmento da aba via HTMX ou reconstrói a página pai inteira no F5.</li>
+        <li><code>form_error_response</code>: devolve HTTP 422 com erros por campo traduzidos em pt-BR.</li>
+      </ul>
+    </div>
+  </div>
+</div>

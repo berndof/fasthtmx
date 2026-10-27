@@ -1,0 +1,128 @@
+{#
+  Macros explícitos e opcionais para formulários HTMX + Alpine.
+  Mantêm o HTML transparente e permitem uso misto com inputs manuais.
+  Disponíveis globalmente ou via:
+  {% from "macros/forms.html" import form_alert, form_field, form_textarea, form_checkbox, submit_btn, delete_btn %}
+#}
+
+{# Banner de erro global do formulário #}
+{% macro form_alert(form_error) %}
+{% if form_error %}
+<div class="rounded-radius border border-error bg-error/10 px-4 py-3 text-sm text-error flex items-center gap-2">
+  <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+  <span>{{ form_error }}</span>
+</div>
+{% endif %}
+{% endmacro %}
+
+{# Campo de input padrão (text, email, password, number, date) #}
+{% macro form_field(form, name, label, type='text', placeholder='', required=False, maxlength='', minlength='', icon='', x_model='', autocomplete='off', value=None, disabled=False) %}
+{% set err = field_error(form, name) %}
+{% set val = value if value is not none else field_value(form, name) %}
+<div class="form-field">
+  <label for="input-{{ name }}">{{ label }}</label>
+  <div class="input-field {% if err %}border-danger{% endif %}">
+    {% if icon %}
+      <i data-lucide="{{ icon }}" class="size-4 text-on-surface/50 ml-2.5 shrink-0"></i>
+    {% endif %}
+    <input
+      id="input-{{ name }}"
+      class="field {% if not icon %}pl-2{% endif %}"
+      type="{{ type }}"
+      name="{{ name }}"
+      {% if x_model %}x-model="{{ x_model }}"{% else %}value="{{ val }}"{% endif %}
+      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+      {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
+      {% if minlength %}minlength="{{ minlength }}"{% endif %}
+      autocomplete="{{ autocomplete }}"
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+    />
+  </div>
+  {% if err %}
+  <div class="flex items-center gap-1.5 mt-0.5 pl-1 text-xs text-danger">
+    <i data-lucide="circle-alert" class="size-3.5 shrink-0"></i>
+    <span>{{ err }}</span>
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{# Textarea padrão #}
+{% macro form_textarea(form, name, label, rows=3, placeholder='', required=False, disabled=False, x_model='', value=None) %}
+{% set err = field_error(form, name) %}
+{% set val = value if value is not none else field_value(form, name) %}
+<div class="form-field">
+  <label for="textarea-{{ name }}">{{ label }}</label>
+  <div class="input-field {% if err %}border-danger{% endif %}">
+    <textarea
+      id="textarea-{{ name }}"
+      name="{{ name }}"
+      rows="{{ rows }}"
+      style="resize: none;"
+      class="field p-2"
+      {% if x_model %}x-model="{{ x_model }}"{% endif %}
+      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+    >{% if not x_model %}{{ val }}{% endif %}</textarea>
+  </div>
+  {% if err %}
+  <div class="flex items-center gap-1.5 mt-0.5 pl-1 text-xs text-danger">
+    <i data-lucide="circle-alert" class="size-3.5 shrink-0"></i>
+    <span>{{ err }}</span>
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{# Checkbox booleano (compatível com parse_form sem precisar de hidden input) #}
+{% macro form_checkbox(form, name, label, x_model='', default=False) %}
+<div class="form-field">
+  <label class="flex items-center gap-2 cursor-pointer">
+    <input
+      type="checkbox"
+      name="{{ name }}"
+      value="true"
+      {% if x_model %}
+        x-model="{{ x_model }}"
+      {% elif field_checked(form, name, default) %}
+        checked
+      {% endif %}
+      class="rounded border-outline"
+    />
+    <span>{{ label }}</span>
+  </label>
+</div>
+{% endmacro %}
+
+{# Botão de submit com spinner HTMX automático #}
+{% macro submit_btn(label='Salvar', icon='save', classes='form-create-btn', disabled_expr='') %}
+<button
+  type="submit"
+  class="{{ classes }}"
+  {% if disabled_expr %}
+    :disabled="{{ disabled_expr }}"
+    :class="({{ disabled_expr }}) ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''"
+  {% endif %}
+>
+  <span class="btn-label">
+    {% if icon %}<i data-lucide="{{ icon }}" class="size-4"></i>{% endif %}
+    {{ label }}
+  </span>
+  <span class="htmx-indicator loading loading-spinner loading-sm"></span>
+</button>
+{% endmacro %}
+
+{# Botão de exclusão que aciona o deleteModal #}
+{% macro delete_btn(item_id, item_name, label='Excluir', classes='form-delete-btn') %}
+<button
+  type="button"
+  @click="$dispatch('open-delete-modal', { id: {{ item_id|string|tojson }}, name: {{ item_name|string|tojson }} })"
+  class="{{ classes }}"
+  title="{{ label }}"
+>
+  <i data-lucide="trash-2"></i>
+  {{ label }}
+</button>
+{% endmacro %}

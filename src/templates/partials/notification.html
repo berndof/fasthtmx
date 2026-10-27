@@ -1,0 +1,134 @@
+<!-- Notifications -->
+<div x-data
+ x-on:notify.window="$store.messages.addNotification($event.detail)"
+ x-on:clear-notifications.window="$store.messages.clearAll()"
+ x-init="$store.messages.initSSE()">
+
+ <div class="group pointer-events-none fixed right-2.5 top-1 flex flex-col gap-2 bg-transparent px-6 py-6 left-[unset] bottom-[unset] max-w-md z-99999">
+
+ <template x-for="notification in $store.messages.notifications" :key="notification.id">
+ <div class="pointer-events-auto relative rounded-radius border bg-surface text-on-surface"
+ :class="{
+ 'border-info': notification.variant === 'info',
+ 'border-success': notification.variant === 'success',
+ 'border-warning': notification.variant === 'warning',
+ 'border-danger': notification.variant === 'danger' || notification.variant === 'error'
+ }"
+ x-show="notification.visible"
+ x-transition:enter="transition duration-300 ease-out"
+ x-transition:enter-start="-translate-y-4 opacity-0"
+ x-transition:enter-end="translate-y-0 opacity-100"
+ x-transition:leave="transition duration-300 ease-in"
+ x-transition:leave-start="translate-y-0 opacity-100"
+ x-transition:leave-end="-translate-y-4 opacity-0"
+ @mouseenter="$store.messages.pauseAutoDismiss(notification.id)"
+ @mouseleave="$store.messages.resumeAutoDismiss(notification.id)"
+ role="alert">
+
+ <!-- Persistent indicator -->
+ <template x-if="notification.timeout === null">
+ <div class="absolute -top-1 -right-1 size-3 rounded-full bg-warning border-2 border-surface dark:border-surface-dark"
+ title="Persistente"></div>
+ </template>
+
+ <div class="flex w-full items-start gap-2.5 rounded-radius p-4 transition-all duration-300"
+ :class="{
+ 'bg-info/10': notification.variant === 'info',
+ 'bg-success/10': notification.variant === 'success',
+ 'bg-warning/10': notification.variant === 'warning',
+ 'bg-danger/10': notification.variant === 'danger' || notification.variant === 'error'
+ }">
+
+ <!-- Icon -->
+ <div x-show="notification.icon"
+ class="shrink-0" x-html="notification.icon">
+ </div>
+
+ <div x-show="!notification.icon"
+ class="shrink-0 rounded-full p-0.5"
+ :class="{
+ 'bg-info/15 text-info': notification.variant === 'info',
+ 'bg-success/15 text-success': notification.variant === 'success',
+ 'bg-warning/15 text-warning': notification.variant === 'warning',
+ 'bg-danger/15 text-danger': notification.variant === 'danger' || notification.variant === 'error'
+ }"
+ aria-hidden="true">
+
+ <template x-if="notification.variant === 'info'">
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+ <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clip-rule="evenodd" />
+ </svg>
+ </template>
+
+ <template x-if="notification.variant === 'success'">
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+ <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
+ </svg>
+ </template>
+
+ <template x-if="notification.variant === 'warning'">
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+ <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+ </svg>
+ </template>
+
+ <template x-if="notification.variant === 'danger' || notification.variant === 'error'">
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+ <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z" clip-rule="evenodd" />
+ </svg>
+ </template>
+ </div>
+
+ <!-- Title & Message -->
+ <div class="flex flex-col gap-2 min-w-0 flex-1">
+ <h3 x-show="notification.title" class="text-sm font-semibold truncate"
+ :class="{
+ 'text-info': notification.variant === 'info',
+ 'text-success': notification.variant === 'success',
+ 'text-warning': notification.variant === 'warning',
+ 'text-danger': notification.variant === 'danger' || notification.variant === 'error'
+ }"
+ x-text="notification.title"></h3>
+ <p x-show="notification.message" class="text-pretty text-sm" x-text="notification.message"></p>
+
+ <!-- Action button -->
+ <a x-show="notification.action"
+ :href="notification.action"
+ target="_blank"
+ class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline">
+ Abrir
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-3.5">
+ <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd" />
+ </svg>
+ </a>
+ </div>
+
+ <!-- Dismiss Button -->
+ <button type="button" class="ml-auto shrink-0" aria-label="dismiss notification"
+ @click="$store.messages.dismissNotification(notification.id)">
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" class="size-5 shrink-0">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+ </svg>
+ </button>
+ </div>
+ </div>
+ </template>
+
+ <!-- Queue indicator -->
+ <div x-show="$store.messages.queue.length > 0"
+ x-cloak
+ x-transition:enter="transition duration-300 ease-out"
+ x-transition:enter-start="opacity-0 scale-90"
+ x-transition:enter-end="opacity-100 scale-100"
+ class="pointer-events-auto text-center">
+ <span class="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs text-on-surface shadow-sm border border-outline">
+ <span class="relative flex size-2">
+ <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
+ <span class="relative inline-flex size-2 rounded-full bg-primary"></span>
+ </span>
+ <span x-text="`+${$store.messages.queue.length} mais`"></span>
+ </span>
+ </div>
+
+ </div>
+</div>

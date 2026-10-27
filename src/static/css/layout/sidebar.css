@@ -1,0 +1,246 @@
+/* FOUC — sidebar já aberta antes da hidratação Alpine (sem animação w-15→w-60 no F5) */
+html.sidebar-expanded .sidebar { width: 15rem !important; }
+html.sidebar-loading .sidebar,
+html.sidebar-loading .sidebar *,
+html.sidebar-loading .top-navbar,
+html.sidebar-loading .top-navbar * {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Durante sidebar-loading com sidebar-expanded, força títulos visíveis
+   sem depender de x-show/x-cloak do Alpine e sem transição de entrada. */
+html.sidebar-loading.sidebar-expanded #nav-sidebar .title {
+  display: flex !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+@layer sidebar_component {
+.sidebar {
+    @apply
+        fixed left-0 flex shrink-0 flex-col
+        md:translate-x-0 md:relative
+        w-15
+        z-0 h-full
+        bg-surface-alt
+    ;
+    transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: width, transform;
+
+    &.open {
+        @apply w-60! translate-x-0;
+    }
+
+    &.close {
+        @apply w-15! translate-x-full md:translate-x-0;
+    }
+
+    & .container {
+        @apply
+            flex flex-col
+            border-r border-outline md:border-none
+            h-full
+        ;
+
+        /* === SCROLL AREA === */
+        & .nav-scroll {
+            @apply
+                flex flex-col
+                flex-1 min-h-0
+                overflow-y-auto
+                overflow-x-hidden
+                min-w-0
+                gap-2
+                my-1.5
+                py-4
+                px-2.5
+            ;
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-outline) transparent;
+        }
+        & .nav-scroll > * {
+            @apply shrink-0;
+        }
+
+        & .scroll-shadow {
+            @apply pointer-events-none absolute left-0 -right-2 h-5 transition-opacity duration-300;
+        }
+        & .scroll-shadow--top {
+            @apply top-0 bg-linear-to-b from-primary/20 to-transparent;
+        }
+        & .scroll-shadow--bottom {
+            @apply bottom-0 bg-linear-to-t from-primary/20 to-transparent;
+        }
+
+        /* === SHARED: todos os tipos de item === */
+        & .item,
+        & .collapsible-item .item,
+        & .subitem {
+            @apply
+                flex items-center flex-row overflow-hidden
+                text-on-surface font-medium
+                underline-offset-2 focus-visible:underline focus:outline-hidden
+                leading-none rounded-radius
+                border border-transparent
+                active:scale-[1.02]
+            ;
+            transition: background-color 180ms ease, color 150ms ease, box-shadow 180ms ease, transform 150ms ease, border-color 180ms ease, backdrop-filter 180ms ease;
+
+            &:hover:not(.active) {
+                background:
+                    linear-gradient(180deg, rgba(255,255,255,0.30) 0%, transparent 62%),
+                    linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 10%, transparent) 0%, color-mix(in oklab, var(--color-accent) 10%, transparent) 100%);
+                backdrop-filter: blur(6px) saturate(120%);
+                -webkit-backdrop-filter: blur(6px) saturate(120%);
+                @apply text-on-surface-strong border-primary/8;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+
+                &:where([data-theme*="dark"], [data-theme*="dark"] *) {
+                    background:
+                        linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 62%),
+                        linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 8%, transparent) 0%, color-mix(in oklab, var(--color-accent) 8%, transparent) 100%);
+                    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+                }
+            }
+
+            &.active {
+                background:
+                    linear-gradient(180deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.06) 38%, transparent 72%),
+                    linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 20%, transparent) 0%, color-mix(in oklab, var(--color-accent) 20%, transparent) 100%);
+                backdrop-filter: blur(8px) saturate(130%);
+                -webkit-backdrop-filter: blur(8px) saturate(130%);
+                @apply
+                    text-primary font-semibold
+                    border-primary/8
+                    hover:text-primary
+                ;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+
+                &:where([data-theme*="dark"], [data-theme*="dark"] *) {
+                    background:
+                        linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 38%, transparent 68%),
+                        linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 16%, transparent) 0%, color-mix(in oklab, var(--color-accent) 16%, transparent) 100%);
+                    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
+                    backdrop-filter: blur(10px) saturate(130%);
+                    -webkit-backdrop-filter: blur(10px) saturate(130%);
+                }
+
+                /* Midnight escuro: só laranja */
+                &:where([data-theme="midnight-dark"], [data-theme="midnight-dark"] *) {
+                    background:
+                        linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 65%),
+                        linear-gradient(135deg, color-mix(in oklab, var(--color-accent) 20%, transparent) 0%, color-mix(in oklab, var(--color-accent) 10%, transparent) 100%);
+                    border-color: color-mix(in oklab, var(--color-accent) 10%, transparent);
+                    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+                }
+            }
+        }
+
+        /* === DIFERENÇAS DE TAMANHO === */
+        & .item,
+        & .collapsible-item .item {
+            @apply w-full h-9 pl-2.5;
+        }
+
+        & .subitem {
+            @apply h-8 px-2.5;
+        }
+
+        & .subitem.active {
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.22) 0%, transparent 65%),
+                linear-gradient(135deg, color-mix(in oklab, var(--color-accent) 18%, transparent) 0%, color-mix(in oklab, var(--color-primary) 18%, transparent) 100%);
+            backdrop-filter: blur(7px) saturate(130%);
+            -webkit-backdrop-filter: blur(7px) saturate(130%);
+            @apply
+                text-accent font-semibold
+                border-accent/8
+                hover:text-accent
+            ;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.20);
+
+            &:where([data-theme*="dark"], [data-theme*="dark"] *) {
+                background:
+                    linear-gradient(180deg, rgba(255,255,255,0.10) 0%, transparent 65%),
+                    linear-gradient(135deg, color-mix(in oklab, var(--color-accent) 14%, transparent) 0%, color-mix(in oklab, var(--color-primary) 14%, transparent) 100%);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+                backdrop-filter: blur(8px) saturate(130%);
+                -webkit-backdrop-filter: blur(8px) saturate(130%);
+            }
+
+            /* Midnight escuro subitem: só laranja */
+            &:where([data-theme="midnight-dark"], [data-theme="midnight-dark"] *) {
+                background:
+                    linear-gradient(180deg, rgba(255,255,255,0.10) 0%, transparent 65%),
+                    linear-gradient(135deg, color-mix(in oklab, var(--color-accent) 18%, transparent) 0%, color-mix(in oklab, var(--color-accent) 9%, transparent) 100%);
+                border-color: color-mix(in oklab, var(--color-accent) 8%, transparent);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+            }
+        }
+
+        /* === LABEL CONTAINER (itens principais + collapsible) === */
+        & .item .label-container,
+        & .collapsible-item .item .label-container {
+            @apply flex flex-row p-0 m-0 flex-1 items-center text-center;
+
+            & svg {
+                @apply relative size-5 shrink-0 stroke-2;
+                transition: color 150ms ease, transform 150ms ease;
+            }
+
+            & .chevron {
+                @apply size-4 shrink-0 stroke-2 text-on-surface/50;
+                transition: rotate 250ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms ease;
+                will-change: rotate;
+                rotate: 0deg;
+                &.open {
+                    rotate: 180deg;
+                    @apply text-primary;
+                }
+            }
+
+            & .title {
+                @apply w-full flex flex-row flex-1 pl-2.5 pr-2.5 items-center text-center;
+            }
+        }
+
+        /* Chevron do collapsível fica à direita */
+        & .collapsible-item .item .title {
+            @apply justify-between;
+        }
+
+        /* === COLLAPSIBLE WRAPPER === */
+        & .collapsible-item {
+            @apply w-full;
+        }
+
+        /* === SUBITENS === */
+        & .subitems-container {
+            @apply
+                flex flex-col w-full flex-1
+                pr-5 ml-5 pl-2.5
+                border-l border-outline
+                gap-2 py-2
+            ;
+
+            &.upward {
+                @apply ml-0 border-l-0 border-transparent mb-2 mt-0 py-0;
+            }
+
+            & .label-container {
+                @apply flex flex-row p-0 m-0 flex-1 items-center justify-between;
+
+                & svg {
+                    @apply relative size-4 shrink-0 scale-110 hover:scale-120 stroke-2;
+                    transition: transform 150ms ease, color 150ms ease;
+                }
+
+                & span {
+                    @apply items-center text-center pl-1 pr-1 text-sm leading-tight;
+                }
+            }
+        }
+    }
+}
+}

@@ -1,0 +1,276 @@
+<!-- This allows screen readers to skip the sidebar and go directly to the main content. -->
+<a class="sr-only" href="#content">skip to the main content</a>
+
+<!-- Overlay para fechar a sidebar em telas pequenas quando estiver aberta -->
+<div
+  x-show="$store.sidebar.isSidebarOpen"
+  x-transition:enter="transition ease-out duration-300"
+  x-transition:enter-start="opacity-0"
+  x-transition:enter-end="opacity-100"
+  x-transition:leave="transition ease-in duration-200"
+  x-transition:leave-start="opacity-100"
+  x-transition:leave-end="opacity-0"
+  x-cloak
+  @click="$store.sidebar.isSidebarOpen = false"
+  class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+></div>
+
+<nav
+  id="nav-sidebar"
+  class="sidebar"
+  :class="{
+    'open': $store.sidebar.isSidebarOpen || isPeeking,
+    'close': !$store.sidebar.isSidebarOpen && !isPeeking
+  }"
+  :style="window.innerWidth >= 768 ? 'position: relative !important; transform: none !important;' : ''"
+  x-data="sidebarComponent"
+>
+  <div class="container">
+    <div class="relative isolate flex flex-col flex-1 min-h-0">
+      <div class="nav-scroll" x-ref="navScroll" @scroll="updateScrollState()">
+
+        {# HOME #}
+        <a
+          hx-get="/home"
+          hx-target="#content"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          hx-indicator="#content"
+          href="/home"
+          class="item"
+          :class="{ 'active' : $store.sidebar.isCurrent('/home', true) }"
+        >
+          <div class="label-container">
+            <i data-lucide="house"></i>
+            <div class="title"
+              x-show="isSidebarVisible"
+              x-transition:enter="transition-all ease-out duration-200 delay-75"
+              x-transition:enter-start="opacity-0 -translate-x-2"
+              x-transition:enter-end="opacity-100 translate-x-0"
+              x-transition:leave="transition-all ease-in duration-100"
+              x-transition:leave-start="opacity-100 translate-x-0"
+              x-transition:leave-end="opacity-0 -translate-x-2"
+              x-cloak
+            >
+              <span>Início</span>
+            </div>
+          </div>
+        </a>
+
+        {# PROJETOS (SHOWCASE CRUD) #}
+        <a
+          hx-get="/projetos/list"
+          hx-target="#content"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          hx-indicator="#content"
+          href="/projetos/list"
+          class="item"
+          :class="{ 'active' : $store.sidebar.isCurrent('/projetos', false) }"
+        >
+          <div class="label-container">
+            <i data-lucide="folder-kanban"></i>
+            <div class="title"
+              x-show="isSidebarVisible"
+              x-transition:enter="transition-all ease-out duration-200 delay-75"
+              x-transition:enter-start="opacity-0 -translate-x-2"
+              x-transition:enter-end="opacity-100 translate-x-0"
+              x-transition:leave="transition-all ease-in duration-100"
+              x-transition:leave-start="opacity-100 translate-x-0"
+              x-transition:leave-end="opacity-0 -translate-x-2"
+              x-cloak
+            >
+              <span>Projetos (Demo)</span>
+            </div>
+          </div>
+        </a>
+
+        {# CAIXA DE ENTRADA #}
+        <a
+          hx-get="/avisos"
+          hx-target="#content"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          hx-indicator="#content"
+          href="/avisos"
+          class="item"
+          :class="{ 'active' : $store.sidebar.isCurrent('/avisos', true) }"
+        >
+          <div class="label-container">
+            <i data-lucide="inbox"></i>
+            <div class="title"
+              x-show="isSidebarVisible"
+              x-transition:enter="transition-all ease-out duration-200 delay-75"
+              x-transition:enter-start="opacity-0 -translate-x-2"
+              x-transition:enter-end="opacity-100 translate-x-0"
+              x-transition:leave="transition-all ease-in duration-100"
+              x-transition:leave-start="opacity-100 translate-x-0"
+              x-transition:leave-end="opacity-0 -translate-x-2"
+              x-cloak
+            >
+              <span>Caixa de entrada</span>
+            </div>
+          </div>
+        </a>
+
+        {# SESSÕES #}
+        <a
+          hx-get="/sessions"
+          hx-target="#content"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          hx-indicator="#content"
+          href="/sessions"
+          class="item"
+          :class="{ 'active' : $store.sidebar.isCurrent('/sessions', true) }"
+        >
+          <div class="label-container">
+            <i data-lucide="shield-check"></i>
+            <div class="title"
+              x-show="isSidebarVisible"
+              x-transition:enter="transition-all ease-out duration-200 delay-75"
+              x-transition:enter-start="opacity-0 -translate-x-2"
+              x-transition:enter-end="opacity-100 translate-x-0"
+              x-transition:leave="transition-all ease-in duration-100"
+              x-transition:leave-start="opacity-100 translate-x-0"
+              x-transition:leave-end="opacity-0 -translate-x-2"
+              x-cloak
+            >
+              <span>Sessões</span>
+            </div>
+          </div>
+        </a>
+
+        {% if user and user.is_admin %}
+        <div class="admin-section gap-2 border-t border-outline py-2 mt-2 flex flex-col">
+
+          {# Usuários - Colapsável #}
+          <div class="collapsible-item">
+            <button
+              class="item"
+              @click="toggleSubitem('usuarios'); $store.sidebar.isSidebarOpen = true"
+              :class="{ 'active' : $store.sidebar.activeSection === 'usuarios' }"
+              :aria-expanded="isOpen('usuarios')"
+              aria-haspopup="true"
+            >
+              <div class="label-container">
+                <i data-lucide="user-round"></i>
+                <div class="title"
+                  x-show="isSidebarVisible"
+                  x-transition:enter="transition-all ease-out duration-200 delay-75"
+                  x-transition:enter-start="opacity-0 -translate-x-2"
+                  x-transition:enter-end="opacity-100 translate-x-0"
+                  x-transition:leave="transition-all ease-in duration-100"
+                  x-transition:leave-start="opacity-100 translate-x-0"
+                  x-transition:leave-end="opacity-0 -translate-x-2"
+                  x-cloak
+                >
+                  <span>Usuários</span>
+                  <i data-lucide="chevron-down" class="chevron" :class="{ 'open': isOpen('usuarios') }"></i>
+                </div>
+              </div>
+            </button>
+
+            <div
+              x-show="isOpen('usuarios') && isSidebarVisible"
+              x-cloak
+              class="subitems-container"
+              x-collapse.duration.250ms
+            >
+              <a
+                hx-get="/user/create"
+                hx-target="#content"
+                hx-swap="innerHTML"
+                hx-push-url="true"
+                hx-indicator="#content"
+                href="/user/create"
+                class="subitem"
+                :class="{ 'active' : $store.sidebar.isCurrent('/user/create', true) }"
+              >
+                <div class="label-container">
+                  <span class="item-text">Criar</span>
+                  <i data-lucide="circle-plus" class="size-3.5"></i>
+                </div>
+              </a>
+
+              <a
+                hx-get="/user/list"
+                hx-target="#content"
+                hx-swap="innerHTML"
+                hx-push-url="true"
+                hx-indicator="#content"
+                href="/user/list"
+                class="subitem"
+                :class="{ 'active' : $store.sidebar.isCurrent('/user/list', true) }"
+              >
+                <div class="label-container">
+                  <span class="item-text">Listar</span>
+                  <i data-lucide="list-tree" class="size-3.5"></i>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          {# Histórico de edição #}
+          <a
+            hx-get="/admin/historico"
+            hx-target="#content"
+            hx-swap="innerHTML"
+            hx-push-url="true"
+            hx-indicator="#content"
+            href="/admin/historico"
+            class="item"
+            :class="{ 'active' : $store.sidebar.isCurrent('/admin/historico', true) }"
+          >
+            <div class="label-container">
+              <i data-lucide="history"></i>
+              <div class="title"
+                x-show="isSidebarVisible"
+                x-transition:enter="transition-all ease-out duration-200 delay-75"
+                x-transition:enter-start="opacity-0 -translate-x-2"
+                x-transition:enter-end="opacity-100 translate-x-0"
+                x-transition:leave="transition-all ease-in duration-100"
+                x-transition:leave-start="opacity-100 translate-x-0"
+                x-transition:leave-end="opacity-0 -translate-x-2"
+                x-cloak
+              >
+                <span>Histórico</span>
+              </div>
+            </div>
+          </a>
+
+          {# Avisos #}
+          <a
+            hx-get="/admin/avisos"
+            hx-target="#content"
+            hx-swap="innerHTML"
+            hx-push-url="true"
+            hx-indicator="#content"
+            href="/admin/avisos"
+            class="item"
+            :class="{ 'active' : $store.sidebar.isCurrent('/admin/avisos', true) }"
+          >
+            <div class="label-container">
+              <i data-lucide="megaphone"></i>
+              <div class="title"
+                x-show="isSidebarVisible"
+                x-transition:enter="transition-all ease-out duration-200 delay-75"
+                x-transition:enter-start="opacity-0 -translate-x-2"
+                x-transition:enter-end="opacity-100 translate-x-0"
+                x-transition:leave="transition-all ease-in duration-100"
+                x-transition:leave-start="opacity-100 translate-x-0"
+                x-transition:leave-end="opacity-0 -translate-x-2"
+                x-cloak
+              >
+                <span>Avisos</span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</nav>

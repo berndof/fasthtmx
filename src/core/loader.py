@@ -1,179 +1,126 @@
-from fastapi import FastAPI, APIRouter
-from logging import getLogger
-from core.settings import BASE_DIR
 import importlib
-from core.meta import Singleton
-from core.models import BasePGModel, BaseSqliteModel
-from sqlalchemy.orm import DeclarativeBase
-from typing import TypeVar, Any
-from core.router.base import CustomRouter
-from core.modules.home.routes.home import HomeRouter
+from logging import getLogger
 
-
-# from fastapi.middleware.trustedhost import TrustedHostMiddleware
-# from fastapi.middleware.gzip import GZipMiddleware
-# from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from core.middlewares import ProcessResponseTimeMiddleware
-from core.middlewares import UowMiddleware
+from core.meta.singleton import Singleton
+from core.middleware import SessionMiddleware
+from core.middleware.access_log import AccessLogMiddleware
+from core.models import BaseSQLModel
+from core.modules.theme.middlewares.theme import ThemeMiddleware
+from core.router import ContextRouter
+from core.settings import BASE_DIR
 
-T = TypeVar("T", bound="DeclarativeBase")
+logger = getLogger("loader")
 
-CORE_MODULES_PATH = BASE_DIR / "core/modules"
-
-logger = getLogger(f"loader")
-logger.setLevel("DEBUG")
+CORE_MODULES_DIR = BASE_DIR / "core/modules"
+APP_MODULES_DIR = BASE_DIR / "modules"
 
 
-class Registry(metaclass=Singleton):
+class LoaderRegistry(metaclass=Singleton):
     def __init__(self):
-        self.routers: list[Any] = []
-        self.pg_models: list[type[BasePGModel]] = []
-        self.sqlite_models: list[type[BaseSqliteModel]] = []
-        self.middlewares: list = []
-
-    def register_router(self, router: APIRouter):
-        # self.routers.append(router)
-        # logger.debug(f"Router {router.prefix} registered successfully.")
-        return router
-
-    def register_model(self, model_cls: type[T]) -> type[T]:
-        # ver o subtipo do modelo, sqlite ou pg, e baseado nisso adicionar na lista correta
-        if issubclass(model_cls, BasePGModel):
-            self.pg_models.append(model_cls)
-            logger.debug(f"Model {model_cls.__name__} registrado em PostgreSQL.")
-
-        elif issubclass(model_cls, BaseSqliteModel):
-            self.sqlite_models.append(model_cls)
-            logger.debug(f"Model {model_cls.__name__} registrado em SQLite.")
-
-        else:
-            logger.warning(
-                f"Model {model_cls.__name__} não herda de nenhuma base conhecida."
-            )
-
-        return model_cls
-
-    def _discover_routers(self):
-        search_pattern = "*/routes/*.py"
-        # logger.debug("searching routers")
-
-        # discovered_routers = []
-
-        for file_path in CORE_MODULES_PATH.glob(search_pattern):
-            # ignore __init__.py
-            if file_path.name == "__init__.py":
-                continue
-
-            # logger.debug(file_path)
-            relative_path = file_path.relative_to(BASE_DIR).with_suffix("")
-            # logger.debug(relative_path)
-            import_path = ".".join(relative_path.parts)
-            # logger.debug(import_path)
-
-            try:
-                # dynamic import
-                importlib.import_module(import_path)
-
-                # verifiy if it has "router" object
-
-                # if hasattr(module, "router"):
-                #    router_obj = getattr(module, "router")
-                logger.debug(f"find router {import_path}")
-                # discovered_routers.append(router_obj)
-                # else:
-                #    pass
-            except:
-                logger.error(f"Error importing module {import_path}")
-                raise
-
-        return
-
-    def _discover_models(self):
-        search_pattern = "*/models/*.py"
-        logger.debug("searching models")
-
-        for file_path in CORE_MODULES_PATH.glob(search_pattern):
-            # ignore __init__.py
-            if file_path.name == "__init__.py":
-                continue
-
-            # logger.debug(file_path)
-            relative_path = file_path.relative_to(BASE_DIR).with_suffix("")
-            # logger.debug(relative_path)
-            import_path = ".".join(relative_path.parts)
-            # logger.debug(import_path)
-            try:
-                importlib.import_module(import_path)
-
-            except:
-                logger.error(f"Error importing module {import_path}")
-                raise
-
-        return
-
-    def _load_routers(self, app: FastAPI):
-        for router in registry.routers:
-            # routers ja foram importados
-
-            app.include_router(router)
-            logger.debug(f"adicionando router {router.prefix}")
+        self.models: list[type[BaseSQLModel]] = []
+        self.discover_paths = [CORE_MODULES_DIR, APP_MODULES_DIR]
 
     def discover_routers(self):
-        # importa as subclasses de custom routers
-        # self.routers.append(HomeRouter)
-        # logger.debug("adicionado class Router")
-        routers = CustomRouter.__subclasses__()
-        logger.debug(f"routers {routers}")
-        return routers
+        search_patterns = ["*/routes.py", "*/routes/*.py"]
+        logger.info("Descobrindo rotas...")
+
+        discovered_files = set()
+        for path in self.discover_paths:
+            if not path.exists():
+                continue
+            for pattern in search_patterns:
+                discovered_files.update(path.glob(pattern))
+
+        legacy_routers: list[APIRouter] = []
+        for file_path in sorted(discovered_files):
+            if file_path.name.startswith("__"):
+                continue
+
+            relative_path = file_path.relative_to(BASE_DIR).with_suffix("")
+            import_path = ".".join(relative_path.parts)
+
+            try:
+                module = importlib.import_module(import_path)
+                logger.debug(f"Importing router {import_path}")
+            except Exception:
+                logger.error(f"Error importing router {import_path}", exc_info=True)
+                raise
+
+            router = getattr(module, "router", None)
+            if isinstance(router, APIRouter):
+                legacy_routers.append(router)
+
+        self._legacy_routers = legacy_routers
+        return legacy_routers
 
     def load_routers(self, app: FastAPI):
-        for router_class in self.discover_routers():
-            i_router = router_class()  # inicializa o router
+        self.discover_routers()
+        routers = ContextRouter.__subclasses__()
+        for router_class in routers:
+            i_router = router_class()
+            app.include_router(i_router.api_router)
+            logger.debug(f"Adicionando router {router_class.__name__} ({i_router.prefix})")
 
-            app.include_router(i_router.router)  # adiciona o router no app
-            logger.debug(f"adicionando router {i_router.prefix}")
+        legacy_routers = getattr(self, "_legacy_routers", [])
+        for legacy in legacy_routers:
+            app.include_router(legacy)
 
-    def load_models(self):
-        self._discover_models()
+        logger.info(
+            "Routers carregados: %d ContextRouter(s), %d APIRouter(s)",
+            len(routers),
+            len(legacy_routers),
+        )
+
+    def discover_sqlmodels(self):
+        search_patterns = ["*/models.py", "*/models/*.py"]
+        logger.info("Descobrindo modelos...")
+
+        discovered_files = set()
+        for path in self.discover_paths:
+            if not path.exists():
+                continue
+            for pattern in search_patterns:
+                discovered_files.update(path.glob(pattern))
+
+        for file_path in sorted(discovered_files):
+            if file_path.name.startswith("__"):
+                continue
+
+            relative_path = file_path.relative_to(BASE_DIR).with_suffix("")
+            import_path = ".".join(relative_path.parts)
+
+            try:
+                _ = importlib.import_module(import_path)
+                logger.debug(f"Importing model {import_path}")
+            except Exception:
+                logger.error(f"Error importing model {import_path}", exc_info=True)
+                raise
+
+        logger.info("Modelos carregados: %d arquivos de modelo", len(discovered_files))
 
     def load_modules(self, app: FastAPI):
-        # self._discover_routers()
-        # self.discover_routers()
-        # self._load_routers(app)
+        logger.info("Iniciando descoberta e carregamento de módulos...")
+        self.discover_sqlmodels()
         self.load_routers(app)
+        logger.info("Carregamento de módulos concluído com sucesso.")
 
-    def load_global_middlewares(self, app: FastAPI):
-        # TODO add scan modules
+    def add_global_middlewares(self, app: FastAPI):
+        origins = ["http://localhost:8000", "http://127.0.0.1:8000"]
 
-        # app.add_middleware(
-        #    TrustedHostMiddleware, allowed_hosts=["example.com", "*.example.com"]
-        # )
-
-        # app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=5)
-
-        # app.add_middleware(HTTPSRedirectMiddleware)
-
-        # origins = [
-        #    "http://localhost.tiangolo.com",
-        #    "https://localhost.tiangolo.com",
-        #    "http://localhost",
-        #    "http://localhost:8080",
-        # ]
-
+        # Ordem de registro: o último adicionado é o mais externo
+        app.add_middleware(SessionMiddleware)
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=["*"],
+            allow_origins=origins,
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],
         )
-
-        app.add_middleware(ProcessResponseTimeMiddleware)
-        app.add_middleware(UowMiddleware)
-
-        return
+        app.add_middleware(ThemeMiddleware)
+        app.add_middleware(AccessLogMiddleware)
 
 
-registry = Registry()  # noqa: F811
+loaderRegistry = LoaderRegistry()

@@ -1,0 +1,79 @@
+{% extends "layout/template.html" %}
+{% from "partials/subpage/navigation.html" import subpage_nav %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="content-header flex items-center justify-between">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="font-mono text-xs px-2 py-0.5 rounded bg-primary/15 text-primary font-bold">{{ projeto.codigo }}</span>
+                <h1 class="text-xl font-bold text-on-surface-strong">{{ projeto.nome }}</h1>
+                {% if projeto.prioritario %}
+                <span class="px-2 py-0.5 text-xs rounded bg-warning/15 text-warning font-semibold">Prioritário</span>
+                {% endif %}
+            </div>
+            <p class="text-xs text-on-surface/60 mt-1">
+                Categoria: <strong>{{ projeto.categoria }}</strong> · Orçamento: <strong>R$ {{ projeto.orcamento | brl }}</strong>
+            </p>
+        </div>
+
+        <a href="/projetos/list"
+           hx-get="/projetos/list"
+           hx-target="#content"
+           hx-swap="innerHTML"
+           hx-push-url="true"
+           class="px-3 py-1.5 rounded-radius border border-outline text-xs font-semibold hover:bg-surface-alt">
+            Voltar para lista
+        </a>
+    </div>
+
+    <div class="main-col-container">
+        {# Coluna Esquerda: Detalhes do Projeto #}
+        <div class="half-col p-5 space-y-4">
+            <h2 class="text-sm font-bold uppercase tracking-wide text-on-surface/60">Resumo do Projeto</h2>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div class="p-3 rounded-radius border border-outline bg-surface-alt/40">
+                    <span class="text-xs text-on-surface/60 block">Código</span>
+                    <strong class="font-mono text-on-surface-strong">{{ projeto.codigo }}</strong>
+                </div>
+                <div class="p-3 rounded-radius border border-outline bg-surface-alt/40">
+                    <span class="text-xs text-on-surface/60 block">Orçamento</span>
+                    <strong class="font-mono text-on-surface-strong">R$ {{ projeto.orcamento | brl }}</strong>
+                </div>
+            </div>
+
+            {% if projeto.tag_list %}
+            <div>
+                <span class="text-xs text-on-surface/60 block mb-1">Tags</span>
+                <div class="flex flex-wrap gap-1.5">
+                    {% for tag in projeto.tag_list %}
+                    <span class="px-2 py-0.5 text-xs rounded bg-surface-alt border border-outline">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div>
+                <span class="text-xs text-on-surface/60 block mb-1">Descrição</span>
+                <p class="text-sm text-on-surface/80 bg-surface-alt/30 p-3 rounded-radius border border-outline/60">
+                    {{ projeto.descricao or "Sem descrição informada." }}
+                </p>
+            </div>
+        </div>
+
+        {# Coluna Direita: Subpages HTMX (suporta clique na aba E F5 direto na URL da aba!) #}
+        <div class="half-col flex flex-col min-h-0">
+            {{ subpage_nav([
+                {"label": "Tarefas Vinculadas", "url": "/projetos/view/" ~ projeto.id ~ "/tarefas", "icon": "check-square", "active": (active_subpage|default('tarefas')) == 'tarefas'},
+                {"label": "Como Funciona", "url": "/projetos/view/" ~ projeto.id ~ "/arquitetura", "icon": "code-2", "active": (active_subpage|default('tarefas')) == 'arquitetura'}
+            ]) }}
+
+            <div id="subpage-card" class="flex-1 p-5 overflow-y-auto">
+                {% if subpage_template %}
+                    {% include subpage_template %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

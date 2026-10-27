@@ -1,0 +1,46 @@
+{#
+  Macros para navegação e container de subpáginas (Alpine useSubpageNavigation).
+  Disponíveis globalmente ou via:
+  {% from "macros/subpage.html" import subpage_nav, subpage_container %}
+#}
+
+{% macro subpage_nav(tabs) %}
+<div id="subpage-nav" class="flex items-stretch gap-2.5 h-full">
+  {% for tab in tabs %}
+  <button type="button"
+    @click="go('{{ tab.key }}')"
+    :disabled="loading"
+    :class="[isActive('{{ tab.key }}') ? 'tab-btn-active' : 'tab-btn-inactive', loading ? 'pointer-events-none opacity-50' : '']"
+    class="tab-btn">
+    {% if tab.icon %}<i data-lucide="{{ tab.icon }}" class="size-3.5"></i>{% endif %}
+    {{ tab.label }}
+  </button>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{% macro subpage_container(card_id='subpage-card', classes='half-col') %}
+<div class="{{ classes }}">
+  <div class="subpage-frame relative">
+    <div id="{{ card_id }}" class="subpage-card" x-ref="card"></div>
+
+    <div x-show="loading || errorMessage" x-cloak
+         x-transition.opacity.duration.200
+         class="absolute inset-0 z-[1200] flex items-center justify-center bg-surface/70 backdrop-blur-sm rounded-radius">
+      <div x-show="loading" class="flex flex-col items-center gap-3">
+        <span class="loading loading-spinner loading-md text-primary" role="status" aria-label="Carregando subpágina"></span>
+        <p class="text-sm font-medium text-on-surface-muted">Carregando...</p>
+      </div>
+      <div x-show="!loading && errorMessage" class="flex flex-col items-center gap-3 px-6 text-center">
+        <i data-lucide="triangle-alert" class="size-8 text-danger"></i>
+        <p class="text-sm text-on-surface-muted" x-text="errorMessage"></p>
+        <button type="button" @click="retry()"
+                class="flex items-center gap-1.5 rounded-radius px-3 py-1.5 text-sm font-medium text-on-surface/70 hover:text-primary hover:bg-primary/15 transition-all duration-200">
+          <i data-lucide="refresh-cw" class="size-4"></i>
+          Tentar novamente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}

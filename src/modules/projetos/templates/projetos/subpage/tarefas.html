@@ -1,0 +1,58 @@
+{% block subpage %}
+<div class="space-y-4">
+    <div class="flex items-center justify-between">
+        <div>
+            <h3 class="text-sm font-bold text-on-surface-strong">Tarefas do Projeto</h3>
+            <p class="text-xs text-on-surface/60">
+                Enquanto houver tarefas pendentes (não concluídas), a exclusão do projeto será bloqueada pelo <code>DeletionBlockedError</code>.
+            </p>
+        </div>
+    </div>
+
+    <form hx-post="/projetos/view/{{ projeto.id }}/tarefas"
+          hx-target="#subpage-card"
+          hx-swap="innerHTML"
+          class="flex items-center gap-2">
+        <input type="text" name="titulo" required placeholder="Nova tarefa..."
+               class="flex-1 px-3 py-1.5 rounded-radius border border-outline bg-surface text-xs">
+        <input type="text" name="responsavel" placeholder="Responsável" value="Equipe Core"
+               class="w-36 px-3 py-1.5 rounded-radius border border-outline bg-surface text-xs">
+        <button type="submit" class="px-3 py-1.5 rounded-radius bg-primary text-on-primary text-xs font-semibold cursor-pointer">
+            Adicionar
+        </button>
+    </form>
+
+    <div class="divide-y divide-outline/50 border border-outline rounded-radius bg-surface">
+        {% for t in tarefas %}
+        <div class="p-3 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <button type="button"
+                        hx-patch="/projetos/view/{{ projeto.id }}/tarefas/{{ t.id }}/toggle"
+                        hx-target="#subpage-card"
+                        hx-swap="innerHTML"
+                        class="size-4 rounded border border-outline flex items-center justify-center cursor-pointer {% if t.concluida %}bg-success text-white border-success{% endif %}">
+                    {% if t.concluida %}✓{% endif %}
+                </button>
+                <div class="truncate">
+                    <p class="text-xs font-semibold {% if t.concluida %}line-through text-on-surface/40{% else %}text-on-surface-strong{% endif %}">
+                        {{ t.titulo }}
+                    </p>
+                    <span class="text-[11px] text-on-surface/50">{{ t.responsavel }}</span>
+                </div>
+            </div>
+            <button type="button"
+                    hx-delete="/projetos/view/{{ projeto.id }}/tarefas/{{ t.id }}"
+                    hx-target="#subpage-card"
+                    hx-swap="innerHTML"
+                    class="text-xs text-danger hover:underline shrink-0 cursor-pointer">
+                Remover
+            </button>
+        </div>
+        {% else %}
+        <div class="p-6 text-center text-xs text-on-surface/50">
+            Nenhuma tarefa cadastrada neste projeto.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock subpage %}

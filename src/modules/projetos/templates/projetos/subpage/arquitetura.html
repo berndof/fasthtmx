@@ -1,0 +1,16 @@
+{% block subpage %}
+<div class="space-y-3 text-xs text-on-surface/80">
+    <h3 class="text-sm font-bold text-on-surface-strong">Como esta tela foi construída no FastHTMX</h3>
+    <ul class="list-disc pl-4 space-y-1.5">
+        <li>
+            <strong>Subpage + F5 nativo (<code>subpage_response</code>):</strong> Clicar nas abas troca apenas <code>#subpage-card</code> via HTMX e atualiza a URL (<code>hx-push-url="true"</code>). Se você pressionar <code>F5</code> em <code>/projetos/view/{{ projeto.id }}/arquitetura</code>, o <code>ContextRouter</code> executa o <code>parent_loader</code> e entrega a página inteira com esta aba aberta.
+        </li>
+        <li>
+            <strong>Formulários Explícitos (<code>parse_form</code>):</strong> O cadastro do projeto usa <code>BRLDecimal</code>, <code>HtmlCheckbox</code>, <code>OptionalStr</code> e <code>tags: list[str]</code> via <code>getlist()</code> automático.
+        </li>
+        <li>
+            <strong>Bloqueador de Exclusão XSS-Safe:</strong> Tente excluir este projeto na listagem enquanto houver tarefas pendentes: o endpoint <code>GET /projetos/{{ projeto.id }}/blockers</code> captura <code>DeletionBlockedError</code> e renderiza os cards com <code>build_blocker_html</code> escapado.
+        </li>
+    </ul>
+</div>
+{% endblock subpage %}
